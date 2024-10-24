@@ -203,7 +203,6 @@ ai-gha
         │   ├── readme_generator.py
         │   ├── structure_generator.py
         │   └── tree_generator.py
-        ├── generators.py
         └── utils.py
 
 ```
