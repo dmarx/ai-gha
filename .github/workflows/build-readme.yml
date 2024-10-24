@@ -46,7 +46,7 @@ jobs:
         run: |
           python -m venv ${{ env.VENV_PATH }}
           source ${{ env.VENV_PATH }}/bin/activate
-          pip install tomli jinja2
+          pip install tomli loguru jinja2
       
       - name: Install local scripts
         run: |
