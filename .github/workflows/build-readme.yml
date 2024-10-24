@@ -6,6 +6,7 @@ on:
       - 'docs/readme/**'
       - 'pyproject.toml'
       - '.github/workflows/build-readme.yml'
+      - 'scripts/**'
   workflow_dispatch:
 
 env:
@@ -36,7 +37,7 @@ jobs:
         id: venv-cache
         with:
           path: ${{ env.VENV_PATH }}
-          key: venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('pyproject.toml') }}
+          key: venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('pyproject.toml', 'scripts/**') }}
           restore-keys: |
             venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-
       
@@ -47,10 +48,15 @@ jobs:
           source ${{ env.VENV_PATH }}/bin/activate
           pip install tomli jinja2
       
+      - name: Install local scripts
+        run: |
+          source ${{ env.VENV_PATH }}/bin/activate
+          cd scripts && pip install -e .
+      
       - name: Generate README
         run: |
           source ${{ env.VENV_PATH }}/bin/activate
-          python scripts/generate_readme.py
+          cd scripts && python generate_readme.py
       
       - name: Check for README changes
         id: readme-changes
