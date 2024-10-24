@@ -30,7 +30,7 @@ jobs:
         run: pip install -e .
       
       - name: Update structure
-        run: python -m readme_generator structure
+        run: LOGURU_LEVEL=DEBUG python -m readme_generator structure
       
       - name: Trigger README rebuild
         env:
