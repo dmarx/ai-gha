@@ -194,7 +194,6 @@ ai-gha
 │   └── readme
 │       ├── README.md
 │       ├── base.md.j2
-│       ├── config.toml
 │       └── sections
 │           ├── development.md.j2
 │           ├── introduction.md.j2
