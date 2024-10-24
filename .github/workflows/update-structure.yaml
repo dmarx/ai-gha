@@ -1,0 +1,57 @@
+name: Update File Structure
+
+on:
+  push:
+    paths-ignore:
+      - 'README.md'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.11"
+  VENV_PATH: .venv
+
+jobs:
+  update-structure:
+    runs-on: ubuntu-latest
+    outputs:
+      tree: ${{ steps.generate-tree.outputs.tree }}
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Generate directory tree
+        id: generate-tree
+        run: python scripts/generate_tree.py
+
+  trigger-readme-build:
+    needs: update-structure
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Update structure template
+        run: |
+          mkdir -p docs/readme/sections
+          echo "{{ structure_tree }}" > docs/readme/sections/structure.md.j2
+          sed -i "s|{{ structure_tree }}|${{ needs.update-structure.outputs.tree }}|" docs/readme/sections/structure.md.j2
+      
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "docs: update project structure tree"
+          title: "docs: update project structure tree"
+          branch: update-project-structure
+          delete-branch: true
+          body: |
+            This PR updates the project structure tree in the README.
+            
+            Generated automatically by the Update File Structure workflow.
