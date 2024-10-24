@@ -1,16 +1,17 @@
-# AI in Github Actions
+# template-repository
 
-Starter template for agentic programming with github actions as the runtime
+## Introduction
 
-# TODO
+This is a template repository that helps you quickly bootstrap new projects with standardized documentation and workflows.
 
-- [ ] Generic "execute a script" workflow
-- [ ] Workflow to dynamically generate README from template a la dmarx/benchwarmers
-  - [ ] auto TOC
-  - [ ] auto directory tree, possibly incl function signatures
-- [ ] Simple skeleton project structure
-- [ ] Modular config system
-- [ ] Setup instructions for hooking directly into API via gh secret
-- [ ] misc utils
-  - [ ] commit_and_push
-- [ ] Starter webpage built by gh-page
+Features:
+- Dynamic README generation using Jinja2 templates
+- Modular section templates for easy maintenance
+- Simple extension mechanism for adding new sections
+
+## TODO
+
+- [ ] Add more section templates
+- [ ] Customize templates for your specific needs
+- [ ] Add automated workflows for README generation
+- [ ] Update template variables
