@@ -14,7 +14,9 @@ This is a template repository that provides a foundation for GitHub Action-based
 - Centralized configuration management
 - Utility functions for common operations
 - Clean, maintainable architecture optimized for AI agents
-
+- Built-in test framework with pytest
+- Automated workflow dependencies
+- Git operations handled through utilities
 ## Repository Setup
 
 ### Required Repository Settings
