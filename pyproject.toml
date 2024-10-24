@@ -54,4 +54,3 @@ ignore_patterns = [
     ".idea",
     "*.egg-info",
 ]
-show_workflows = true  # Flag to indicate if we want to show workflow files
