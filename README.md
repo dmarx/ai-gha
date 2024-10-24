@@ -153,6 +153,11 @@ ai-gha
     └── readme_generator
         ├── __init__.py
         ├── __main__.py
+        ├── generators
+        │   ├── __init__.py
+        │   ├── readme.py
+        │   ├── structure.py
+        │   └── tree.py
         ├── generators.py
         └── utils.py
 
@@ -169,7 +174,10 @@ ai-gha
   - `sections/`: Individual section templates
 
 - `src/readme_generator/`: Core Python package
-  - `generators.py`: Main generation logic
+  - `generators/`: Generation components
+    - `tree.py`: Tree generation utilities
+    - `readme.py`: README generation logic
+    - `structure.py`: Structure documentation
   - `utils.py`: Shared utility functions
   - `__main__.py`: CLI entry point
 
