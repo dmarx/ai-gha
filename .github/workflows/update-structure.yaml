@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: write    # Added permission to trigger workflows
     
     steps:
       - uses: actions/checkout@v4
@@ -51,8 +52,11 @@ jobs:
         run: |
           source ${{ env.VENV_PATH }}/bin/activate
           cd scripts && python generate_tree.py
-      
+
       - name: Trigger README rebuild
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh workflow run build-readme.yml
+        run: |
+          # Wait briefly to ensure the commit is processed
+          sleep 5
+          gh workflow run build-readme.yml || echo "Failed to trigger workflow directly, changes will be picked up by push trigger"
