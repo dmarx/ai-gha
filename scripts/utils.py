@@ -9,28 +9,13 @@ def get_project_root() -> Path:
     return Path(os.getcwd()).parent
 
 def load_config(config_path: str) -> dict:
-    """
-    Load configuration from a TOML file
-    
-    Args:
-        config_path (str): Path to the TOML configuration file relative to project root
-        
-    Returns:
-        dict: Parsed configuration data
-    """
+    """Load configuration from a TOML file"""
     full_path = get_project_root() / config_path
     with open(full_path, "rb") as f:
         return tomli.load(f)
 
-def merge_configs(*configs: dict) -> dict:
-    """
-    Merge multiple configuration dictionaries"""
-    result = {}
-    for config in configs:
-        result.update(config)
-    return result
-
 def commit_and_push(file_to_commit):
+    """Commit and push changes for a specific file"""
     try:
         # Configure Git for GitHub Actions
         subprocess.run(["git", "config", "--global", "user.name", "GitHub Action"], check=True)
