@@ -1,4 +1,4 @@
-# template-repository
+# readme-generator
 
 ## Introduction
 
@@ -12,7 +12,29 @@ Features:
 ## Project Structure
 
 ```
-
+LICENSE
+README.md
+docs
+    ├── readme
+        ├── base.md.j2
+        ├── config.toml
+        ├── sections
+            ├── introduction.md.j2
+            ├── structure.md.j2
+            ├── todo.md.j2
+        ├── todo.md
+pyproject.toml
+scripts
+    ├── generate_readme.py
+    ├── generate_tree.py
+    ├── readme_generator.egg-info
+        ├── PKG-INFO
+        ├── SOURCES.txt
+        ├── dependency_links.txt
+        ├── requires.txt
+        ├── top_level.txt
+    ├── setup.py
+    ├── utils.py
 ```
 ## TODO
 
