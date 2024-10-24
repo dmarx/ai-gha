@@ -187,6 +187,13 @@ The repository is organized as follows:
 
 ```
 ai-gha
+├── .github
+│   └── workflows
+│       ├── README.md
+│       ├── build-readme.yml
+│       ├── test.yml
+│       └── update-structure.yaml
+├── .gitignore
 ├── LICENSE
 ├── README.md
 ├── docs
@@ -216,7 +223,8 @@ ai-gha
 │       └── utils.py
 └── tests
     ├── conftest.py
-    └── test_generators.py
+    ├── test_generators.py
+    └── test_tree_generator.py
 
 ```
 
