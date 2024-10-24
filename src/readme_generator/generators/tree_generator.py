@@ -3,20 +3,26 @@ from typing import Optional, Tuple
 from loguru import logger
 from tree_format import format_tree
 from ..utils import load_config
+import fnmatch
 
 def should_include_path(path: Path, config: dict) -> bool:
     """
     Determine if a path should be included in the tree.
-    Only excludes paths that match ignore patterns.
+    Only excludes paths that exactly match ignore patterns.
     """
     path_str = str(path)
     logger.debug(f"Checking path: {path_str}")
     
     # Check against ignore patterns
     ignore_patterns = set(config["tool"]["readme"]["tree"]["ignore_patterns"])
-    if any(pattern in path_str for pattern in ignore_patterns):
-        logger.debug(f"Path {path_str} matched ignore pattern")
-        return False
+    
+    # Split path into parts and check each part against patterns
+    path_parts = path_str.split('/')
+    for pattern in ignore_patterns:
+        for part in path_parts:
+            if fnmatch.fnmatch(part, pattern):
+                logger.debug(f"Path {path_str} matched ignore pattern {pattern}")
+                return False
     
     logger.debug(f"Path {path_str} included")
     return True
