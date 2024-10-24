@@ -2,7 +2,7 @@ from pathlib import Path
 import tomli
 import os
 import subprocess
-from typing import Dict, Any, List, Optional, Union, Tuple
+from loguru import logger
 
 def get_project_root() -> Path:
     """Get the project root directory"""
@@ -22,63 +22,35 @@ def load_config(config_path: str) -> dict:
     with open(full_path, "rb") as f:
         return tomli.load(f)
 
-def merge_configs(*configs: Dict[str, Any]) -> Dict[str, Any]:
+def merge_configs(*configs: dict) -> dict:
     """
-    Merge multiple configuration dictionaries
-    
-    Args:
-        *configs: Variable number of configuration dictionaries
-        
-    Returns:
-        dict: Merged configuration dictionary
-    """
+    Merge multiple configuration dictionaries"""
     result = {}
     for config in configs:
         result.update(config)
     return result
 
-def commit_and_push(
-    path: Optional[str] = None,
-    commit_message: str = "update",
-    *,
-    author_name: str = "github-actions[bot]",
-    author_email: str = "github-actions[bot]@users.noreply.github.com",
-    skip_ci: bool = True,
-    cwd: Optional[Union[str, Path]] = None
-) -> None:
-    """
-    Add a specific file (if provided), commit, and push changes.
-    If no file is specified, commits all staged changes.
-    
-    Args:
-        path (Optional[str]): Specific file path to commit
-        commit_message (str): Commit message
-        author_name (str): Git author name
-        author_email (str): Git author email
-        skip_ci (bool): Whether to append [skip ci] to commit message
-        cwd (Optional[Union[str, Path]]): Working directory for git commands
-        
-    Raises:
-        subprocess.CalledProcessError: If any git command fails
-    """
-    # Set git configuration
-    subprocess.run(['git', 'config', '--local', 'user.name', author_name], cwd=cwd, check=True)
-    subprocess.run(['git', 'config', '--local', 'user.email', author_email], cwd=cwd, check=True)
-    
-    # Add specific file if provided
-    if path:
-        subprocess.run(['git', 'add', path], cwd=cwd, check=True)
-    
-    # Prepare commit message
-    if skip_ci:
-        commit_message = f"{commit_message} [skip ci]"
-    
+def commit_and_push(file_to_commit):
     try:
-        # Attempt to commit
-        subprocess.run(['git', 'commit', '-m', commit_message], cwd=cwd, check=True)
-        # Push if commit succeeds
-        subprocess.run(['git', 'push'], cwd=cwd, check=True)
+        # Configure Git for GitHub Actions
+        subprocess.run(["git", "config", "--global", "user.name", "GitHub Action"], check=True)
+        subprocess.run(["git", "config", "--global", "user.email", "action@github.com"], check=True)
+        
+        # Check if there are any changes to commit
+        status = subprocess.run(["git", "status", "--porcelain", file_to_commit], capture_output=True, text=True, check=True)
+        if not status.stdout.strip():
+            logger.info(f"No changes to commit for {file_to_commit}")
+            return
+        
+        subprocess.run(["git", "add", file_to_commit], check=True)
+        subprocess.run(["git", "commit", "-m", f"Update {file_to_commit}"], check=True)
+        subprocess.run(["git", "push"], check=True)
+        
+        logger.success(f"Changes to {file_to_commit} committed and pushed successfully")
     except subprocess.CalledProcessError as e:
-        # If the error is due to nothing to commit, that's fine
-        if "nothing to commit" not in str(e.stderr):
+        logger.error(f"Error during git operations: {e}")
+        if "nothing to commit" in str(e):
+            logger.info("No changes to commit. Continuing execution")
+        else:
+            logger.warning("Exiting early due to Git error")
             raise
