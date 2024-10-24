@@ -7,4 +7,6 @@ authors = [
 ]
 dependencies = [
     "Jinja2>=3.1.2",
+    "tomli>=2.0.1",
+    "loguru>=0.7.0",
 ]
