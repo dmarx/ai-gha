@@ -128,6 +128,48 @@ To add new README sections:
 1. Create a new template in `docs/readme/sections/`
 2. Include it in `docs/readme/base.md.j2`
 3. Add any necessary configuration to `pyproject.toml`
+## Development Guidelines
+
+### Code Organization for LLM Interaction
+
+When developing this project (or using it as a template), keep in mind these guidelines for effective collaboration with Large Language Models:
+
+1. **File Length and Modularity**
+   - Keep files short and focused on a single responsibility
+   - If you find yourself using comments like "... rest remains the same" or "... etc", the file is too long
+   - Files should be completely replaceable in a single LLM interaction
+   - Long files should be split into logical components
+
+2. **Why This Matters**
+   - LLMs work best with clear, focused contexts
+   - Complete file contents are better than partial updates with ellipsis
+   - Shorter files make it easier for LLMs to:
+     - Understand the complete context
+     - Suggest accurate modifications
+     - Maintain consistency
+     - Avoid potential errors from incomplete information
+
+3. **Real World Example**
+   Our own refactoring: We split `generators.py` into:
+   ```
+   generators/
+   ├── __init__.py
+   ├── readme.py
+   ├── structure.py
+   └── tree.py
+   ```
+   This makes each component:
+   - Easier to understand
+   - Independently maintainable
+   - More focused in purpose
+   - Fully replaceable in single LLM interactions
+
+4. **Best Practices**
+   - Aim for files under 200 lines
+   - Each file should have a single, clear purpose
+   - Use directory structure to organize related components
+   - Prefer many small files over few large files
+   - Consider splitting when files require partial updates
 ## Project Structure
 
 The repository is organized as follows:
@@ -137,7 +179,9 @@ ai-gha
 ├── LICENSE
 ├── README.md
 ├── docs
+│   ├── README.md
 │   └── readme
+│       ├── README.md
 │       ├── base.md.j2
 │       ├── config.toml
 │       ├── sections
@@ -151,13 +195,15 @@ ai-gha
 ├── pyproject.toml
 └── src
     └── readme_generator
+        ├── README.md
         ├── __init__.py
         ├── __main__.py
         ├── generators
+        │   ├── README.md
         │   ├── __init__.py
-        │   ├── readme.py
-        │   ├── structure.py
-        │   └── tree.py
+        │   ├── readme_generator.py
+        │   ├── structure_generator.py
+        │   └── tree_generator.py
         ├── generators.py
         └── utils.py
 
@@ -175,9 +221,9 @@ ai-gha
 
 - `src/readme_generator/`: Core Python package
   - `generators/`: Generation components
-    - `tree.py`: Tree generation utilities
-    - `readme.py`: README generation logic
-    - `structure.py`: Structure documentation
+    - `tree_generator.py`: Tree generation utilities
+    - `readme_generator.py`: README generation logic
+    - `structure_generator.py`: Structure documentation
   - `utils.py`: Shared utility functions
   - `__main__.py`: CLI entry point
 
@@ -189,7 +235,3 @@ ai-gha
 - [ ] Expand documentation with more examples
 - [ ] Add testing framework
 - [ ] Add more reusable components
-
-## Support
-
-If you encounter any issues or have questions, please check the prerequisites section first, then file an issue in the GitHub repository.
