@@ -1,7 +1,7 @@
 from pathlib import Path
 from loguru import logger
 from ..utils import get_project_root, commit_and_push
-from .tree import generate_tree
+from .tree_generator import generate_tree
 
 def update_structure() -> None:
     """Update the structure template and commit changes"""
@@ -30,9 +30,9 @@ The repository is organized as follows:
 
 - `src/readme_generator/`: Core Python package
   - `generators/`: Generation components
-    - `tree.py`: Tree generation utilities
-    - `readme.py`: README generation logic
-    - `structure.py`: Structure documentation
+    - `tree_generator.py`: Tree generation utilities
+    - `readme_generator.py`: README generation logic
+    - `structure_generator.py`: Structure documentation
   - `utils.py`: Shared utility functions
   - `__main__.py`: CLI entry point
 
