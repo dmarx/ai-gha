@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      actions: write    # Added permission to trigger workflows
+      actions: write
     
     steps:
       - uses: actions/checkout@v4
@@ -41,7 +41,7 @@ jobs:
         run: |
           python -m venv ${{ env.VENV_PATH }}
           source ${{ env.VENV_PATH }}/bin/activate
-          pip install tomli
+          pip install tomli loguru jinja2
       
       - name: Install local scripts
         run: |
@@ -57,6 +57,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Wait briefly to ensure the commit is processed
           sleep 5
           gh workflow run build-readme.yml || echo "Failed to trigger workflow directly, changes will be picked up by push trigger"
