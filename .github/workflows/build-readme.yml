@@ -57,21 +57,3 @@ jobs:
         run: |
           source ${{ env.VENV_PATH }}/bin/activate
           cd scripts && python generate_readme.py
-      
-      - name: Check for README changes
-        id: readme-changes
-        run: |
-          if [[ -n "$(git status --porcelain README.md)" ]]; then
-            echo "changed=true" >> $GITHUB_OUTPUT
-          else
-            echo "changed=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Commit and push if README changed
-        if: steps.readme-changes.outputs.changed == 'true'
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add README.md
-          git commit -m "docs: update README.md [skip ci]"
-          git push
