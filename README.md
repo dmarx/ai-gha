@@ -15,6 +15,63 @@ This is a template repository that provides a foundation for GitHub Action-based
 - Utility functions for common operations
 - Clean, maintainable architecture optimized for AI agents
 
+## Repository Setup
+
+### Required Repository Settings
+
+1. **Workflow Permissions**
+   - Go to Repository Settings → Actions → General → Workflow permissions
+   - Enable "Read and write permissions"
+   - Check "Allow GitHub Actions to create and approve pull requests"
+
+2. **Branch Protection** (Optional but recommended)
+   - Go to Repository Settings → Branches → Branch protection rules
+   - Add rule for your main branch (e.g., `main` or `master`)
+   - Enable:
+     - "Require pull request reviews before merging"
+     - "Require status checks to pass before merging"
+   - Allow:
+     - "Allow specific actors to bypass required pull requests"
+     - Add "github-actions[bot]" to the bypass list
+
+### Required Secrets and Variables
+
+No additional secrets are required for basic functionality. The workflows use the default `GITHUB_TOKEN` which is automatically provided.
+
+### Repository Setup Commands
+
+If you're setting up using GitHub CLI, you can run these commands:
+```bash
+# Enable workflows
+gh repo edit --enable-actions
+
+# Set workflow permissions
+gh api \
+  --method PUT \
+  -H "Accept: application/vnd.github+json" \
+  "/repos/OWNER/REPO/actions/permissions/workflow" \
+  -f default_workflow_permissions='write' \
+  -F can_approve_pull_request_reviews=true
+
+# Enable Issues (recommended for tracking)
+gh repo edit --enable-issues
+```
+
+Replace `OWNER/REPO` with your repository details.
+
+### Common Issues
+
+1. **Workflow Permission Errors**
+   - Error: "Resource not accessible by integration"
+   - Solution: Ensure workflow permissions are set to "Read and write"
+
+2. **Git Push Failures**
+   - Error: "GitHub Actions is not permitted to create or approve pull requests"
+   - Solution: Check "Allow GitHub Actions to create and approve pull requests"
+
+3. **Workflow Trigger Issues**
+   - Error: Workflows not triggering each other
+   - Solution: Ensure `GITHUB_TOKEN` has sufficient permissions and "Read and write permissions" is enabled
 ## Usage
 
 ### Installation
@@ -82,6 +139,7 @@ docs
         ├── config.toml
         ├── sections
             ├── introduction.md.j2
+            ├── prerequisites.md.j2
             ├── structure.md.j2
             ├── todo.md.j2
             ├── usage.md.j2
@@ -101,3 +159,7 @@ src
 - [ ] Expand documentation with more examples
 - [ ] Add testing framework
 - [ ] Add more reusable components
+
+## Support
+
+If you encounter any issues or have questions, please check the prerequisites section first, then file an issue in the GitHub repository.
