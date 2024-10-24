@@ -131,26 +131,28 @@ To add new README sections:
 ## Project Structure
 
 ```
-LICENSE
-README.md
-docs
-    ├── readme
-        ├── base.md.j2
-        ├── config.toml
-        ├── sections
-            ├── introduction.md.j2
-            ├── prerequisites.md.j2
-            ├── structure.md.j2
-            ├── todo.md.j2
-            ├── usage.md.j2
-        ├── todo.md
-pyproject.toml
-src
-    ├── readme_generator
+ai-gha
+├── LICENSE
+├── README.md
+├── docs
+│   └── readme
+│       ├── base.md.j2
+│       ├── config.toml
+│       ├── sections
+│       │   ├── introduction.md.j2
+│       │   ├── prerequisites.md.j2
+│       │   ├── structure.md.j2
+│       │   ├── todo.md.j2
+│       │   └── usage.md.j2
+│       └── todo.md
+├── pyproject.toml
+└── src
+    └── readme_generator
         ├── __init__.py
         ├── __main__.py
         ├── generators.py
-        ├── utils.py
+        └── utils.py
+
 ```
 ## TODO
 
