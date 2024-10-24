@@ -1,15 +1,16 @@
 from jinja2 import Environment, FileSystemLoader
 from pathlib import Path
+from loguru import logger
 from utils import load_config, get_project_root, commit_and_push
 
 def generate_readme():
     project_root = get_project_root()
     
-    # Load configurations
+    logger.info("Loading configurations")
     project_config = load_config("pyproject.toml")
     readme_config = load_config("docs/readme/config.toml")
     
-    # Create Jinja2 environment with paths relative to project root
+    logger.info("Setting up Jinja2 environment")
     env = Environment(
         loader=FileSystemLoader([
             project_root / 'docs/readme',
@@ -19,33 +20,26 @@ def generate_readme():
         lstrip_blocks=True
     )
     
-    # Load base template
+    logger.debug("Loading base template")
     template = env.get_template('base.md.j2')
     
-    # Create variables structure
+    logger.debug("Preparing template variables")
     variables = {
         'project': project_config['project'],
         'readme': readme_config['readme']
     }
     
-    # Render template
+    logger.info("Rendering README template")
     output = template.render(**variables)
     
-    # Write to README.md in project root
     readme_path = project_root / 'README.md'
+    logger.info(f"Writing README to {readme_path}")
     with open(readme_path, 'w') as f:
         f.write(output)
     
-    # Commit and push changes
-    try:
-        commit_and_push(
-            path='README.md',
-            commit_message="docs: update README",
-            cwd=project_root
-        )
-    except subprocess.CalledProcessError as e:
-        print(f"Warning: Git operation failed: {e}")
-        raise
+    logger.info("Committing and pushing changes")
+    commit_and_push('README.md')
+    logger.success("README generation completed")
 
 if __name__ == '__main__':
     generate_readme()
