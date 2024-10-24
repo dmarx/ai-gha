@@ -8,7 +8,7 @@ dependencies = [
     "tomli>=2.0.1",
     "loguru>=0.7.0",
     "fire>=0.5.0",
-    "tree-format>=0.1.2",  # Pure Python tree formatter
+    "tree-format>=0.1.2",
 ]
 
 [build-system]
@@ -37,10 +37,10 @@ ignore_patterns = [
     "__pycache__",
     "*.pyc",
     ".git",
-    ".github",
     ".venv",
     ".pytest_cache",
     ".vscode",
     ".idea",
     "*.egg-info",
 ]
+show_workflows = true  # Flag to indicate if we want to show workflow files
