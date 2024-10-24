@@ -1,6 +1,6 @@
 from jinja2 import Environment, FileSystemLoader
 from pathlib import Path
-from .utils import load_config
+from utils import load_config  # Changed from relative import to direct import
 
 def generate_readme():
     # Load configurations
