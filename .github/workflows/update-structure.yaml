@@ -9,7 +9,6 @@ on:
 
 env:
   PYTHON_VERSION: "3.11"
-  VENV_PATH: .venv
 
 jobs:
   update-structure:
@@ -27,32 +26,12 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
       
-      - name: Cache virtual environment
-        uses: actions/cache@v4
-        id: venv-cache
-        with:
-          path: ${{ env.VENV_PATH }}
-          key: venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('pyproject.toml', 'scripts/**') }}
-          restore-keys: |
-            venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-
+      - name: Install package
+        run: pip install -e .
       
-      - name: Create and activate virtual environment
-        if: steps.venv-cache.outputs.cache-hit != 'true'
-        run: |
-          python -m venv ${{ env.VENV_PATH }}
-          source ${{ env.VENV_PATH }}/bin/activate
-          pip install tomli loguru jinja2
+      - name: Update structure
+        run: python -m readme_generator structure
       
-      - name: Install local scripts
-        run: |
-          source ${{ env.VENV_PATH }}/bin/activate
-          cd scripts && pip install -e .
-      
-      - name: Generate tree and update template
-        run: |
-          source ${{ env.VENV_PATH }}/bin/activate
-          cd scripts && python generate_tree.py
-
       - name: Trigger README rebuild
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
