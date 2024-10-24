@@ -13,7 +13,11 @@ env:
   PYTHON_VERSION: "3.11"
 
 jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+
   build-readme:
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -31,4 +35,4 @@ jobs:
         run: pip install -e .
       
       - name: Generate README
-        run: LOGURU_LEVEL=DEBUG python -m readme_generator readme
+        run: python -m readme_generator readme
