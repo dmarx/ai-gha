@@ -7,7 +7,9 @@ ai-gha
 ├── LICENSE
 ├── README.md
 ├── docs
+│   ├── README.md
 │   └── readme
+│       ├── README.md
 │       ├── base.md.j2
 │       ├── config.toml
 │       ├── sections
@@ -21,13 +23,15 @@ ai-gha
 ├── pyproject.toml
 └── src
     └── readme_generator
+        ├── README.md
         ├── __init__.py
         ├── __main__.py
         ├── generators
+        │   ├── README.md
         │   ├── __init__.py
-        │   ├── readme.py
-        │   ├── structure.py
-        │   └── tree.py
+        │   ├── readme_generator.py
+        │   ├── structure_generator.py
+        │   └── tree_generator.py
         ├── generators.py
         └── utils.py
 
@@ -45,9 +49,9 @@ ai-gha
 
 - `src/readme_generator/`: Core Python package
   - `generators/`: Generation components
-    - `tree.py`: Tree generation utilities
-    - `readme.py`: README generation logic
-    - `structure.py`: Structure documentation
+    - `tree_generator.py`: Tree generation utilities
+    - `readme_generator.py`: README generation logic
+    - `structure_generator.py`: Structure documentation
   - `utils.py`: Shared utility functions
   - `__main__.py`: CLI entry point
 
