@@ -178,7 +178,6 @@ The repository is organized as follows:
 ai-gha
 ├── LICENSE
 ├── README.md
-├── conftest.py
 ├── docs
 │   ├── README.md
 │   └── readme
@@ -193,18 +192,21 @@ ai-gha
 │           ├── todo.md.j2
 │           └── usage.md.j2
 ├── pyproject.toml
-└── src
-    └── readme_generator
-        ├── README.md
-        ├── __init__.py
-        ├── __main__.py
-        ├── generators
-        │   ├── README.md
-        │   ├── __init__.py
-        │   ├── readme_generator.py
-        │   ├── structure_generator.py
-        │   └── tree_generator.py
-        └── utils.py
+├── src
+│   └── readme_generator
+│       ├── README.md
+│       ├── __init__.py
+│       ├── __main__.py
+│       ├── generators
+│       │   ├── README.md
+│       │   ├── __init__.py
+│       │   ├── readme_generator.py
+│       │   ├── structure_generator.py
+│       │   └── tree_generator.py
+│       └── utils.py
+└── tests
+    ├── conftest.py
+    └── test_generators.py
 
 ```
 
