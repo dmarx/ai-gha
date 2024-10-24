@@ -1,0 +1,12 @@
+[readme]
+features = [
+    "Dynamic README generation using Jinja2 templates",
+    "Modular section templates for easy maintenance",
+    "Simple extension mechanism for adding new sections",
+]
+todo_items = [
+    "Add more section templates",
+    "Customize templates for your specific needs",
+    "Add automated workflows for README generation",
+    "Update template variables",
+]
