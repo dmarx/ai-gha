@@ -6,9 +6,12 @@ This is a template repository that provides a foundation for GitHub Action-based
 
 ### Key Features
 
-- Dynamic README generation using Jinja2 templates
-- Modular section templates for easy maintenance
-- Simple extension mechanism for adding new sections
+- Modular documentation system with Jinja2 templates
+- Automatic project structure documentation
+- Reusable GitHub Actions workflows
+- Centralized configuration management
+- Utility functions for common operations
+- Clean, maintainable architecture optimized for AI agents
 
 ## Project Structure
 
@@ -23,6 +26,7 @@ docs
             ├── introduction.md.j2
             ├── structure.md.j2
             ├── todo.md.j2
+            ├── usage.md.j2
         ├── todo.md
 pyproject.toml
 src
@@ -34,7 +38,8 @@ src
 ```
 ## TODO
 
-- [ ] Add more section templates
-- [ ] Customize templates for your specific needs
-- [ ] Add automated workflows for README generation
-- [ ] Update template variables
+- [ ] Add more utility functions for common agent operations
+- [ ] Create workflow templates for common agent tasks
+- [ ] Expand documentation with more examples
+- [ ] Add testing framework
+- [ ] Add more reusable components
