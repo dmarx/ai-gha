@@ -26,23 +26,6 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 addopts = "-v --cov=readme_generator"
 
-[tool.readme]
-features = [
-    "Modular documentation system with Jinja2 templates",
-    "Automatic project structure documentation",
-    "Reusable GitHub Actions workflows",
-    "Centralized configuration management",
-    "Utility functions for common operations",
-    "Clean, maintainable architecture optimized for AI agents"
-]
-todo_items = [
-    "Add more utility functions for common agent operations",
-    "Create workflow templates for common agent tasks",
-    "Expand documentation with more examples",
-    "Add testing framework",
-    "Add more reusable components"
-]
-
 [tool.readme.tree]
 ignore_patterns = [
     "__pycache__",
