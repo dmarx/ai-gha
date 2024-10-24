@@ -272,13 +272,19 @@ ai-gha
 - `pyproject.toml`: Project configuration and dependencies
 ## TODO
 
-- [ ] auto TOC
-- [ ] module summary w function signatures
-- [ ] Setup instructions for hooking directly into API via gh secret
-- [ ] Starter webpage built by gh-page
+### Documentation Improvements
+- [ ] Add automatic table of contents generation
+- [ ] Add module summary with function signatures
+- [ ] Expand documentation with more examples
+- [ ] Add API integration instructions
 
+### Feature Additions
 - [ ] Add more utility functions for common agent operations
 - [ ] Create workflow templates for common agent tasks
-- [ ] Expand documentation with more examples
-- [ ] Add testing framework
 - [ ] Add more reusable components
+- [ ] Add GitHub Pages integration for project documentation
+
+### Testing Enhancements
+- [ ] Add more test cases for edge cases
+- [ ] Add integration tests for workflows
+- [ ] Improve test coverage
