@@ -178,6 +178,7 @@ The repository is organized as follows:
 ai-gha
 ├── LICENSE
 ├── README.md
+├── conftest.py
 ├── docs
 │   ├── README.md
 │   └── readme
