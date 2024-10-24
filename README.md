@@ -24,17 +24,12 @@ docs
             ├── todo.md.j2
         ├── todo.md
 pyproject.toml
-scripts
-    ├── generate_readme.py
-    ├── generate_tree.py
-    ├── readme_generator.egg-info
-        ├── PKG-INFO
-        ├── SOURCES.txt
-        ├── dependency_links.txt
-        ├── requires.txt
-        ├── top_level.txt
-    ├── setup.py
-    ├── utils.py
+src
+    ├── readme_generator
+        ├── __init__.py
+        ├── __main__.py
+        ├── generators.py
+        ├── utils.py
 ```
 ## TODO
 
