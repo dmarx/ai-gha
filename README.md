@@ -82,7 +82,7 @@ This project is designed to be used as a template repository. To get started:
 2. Clone your new repository
 3. Install the development dependencies:
    ```bash
-   pip install -e .
+   pip install -e ".[test]"
    ```
 
 ### Dynamic README Generation
@@ -115,6 +115,27 @@ To manually update the structure:
 python -m readme_generator structure
 ```
 
+### Testing
+
+The project uses pytest for testing. To run tests:
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage report
+pytest --cov=readme_generator
+
+# Run specific test file
+pytest tests/test_tree_generator.py
+```
+
+Tests are automatically run:
+- On every push to main
+- When workflows are triggered
+- Before README updates
+- Before structure updates
+
 ### Development
 
 This project follows a modular design principle to make it easier for AI agents to work with the codebase:
@@ -123,11 +144,13 @@ This project follows a modular design principle to make it easier for AI agents 
 - Configuration is centralized in `pyproject.toml`
 - Utilities are designed to be reusable across workflows
 - Git operations are handled through utility functions
+- All features are tested using pytest
 
 To add new README sections:
 1. Create a new template in `docs/readme/sections/`
 2. Include it in `docs/readme/base.md.j2`
 3. Add any necessary configuration to `pyproject.toml`
+4. Add tests for new functionality
 ## Development Guidelines
 
 ### Code Organization for LLM Interaction
