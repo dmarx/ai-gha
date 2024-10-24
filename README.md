@@ -2,9 +2,10 @@
 
 ## Introduction
 
-This is a template repository that helps you quickly bootstrap new projects with standardized documentation and workflows.
+This is a template repository that provides a foundation for GitHub Action-based agents. It includes a modular system for dynamic documentation generation and other reusable components that make it easier to build and maintain agent-driven workflows.
 
-Features:
+### Key Features
+
 - Dynamic README generation using Jinja2 templates
 - Modular section templates for easy maintenance
 - Simple extension mechanism for adding new sections
