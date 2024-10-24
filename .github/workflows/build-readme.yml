@@ -31,4 +31,4 @@ jobs:
         run: pip install -e .
       
       - name: Generate README
-        run: python -m readme_generator readme
+        run: LOGURU_LEVEL=DEBUG python -m readme_generator readme
