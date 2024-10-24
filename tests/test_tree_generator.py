@@ -16,17 +16,16 @@ def mock_repo_with_files(mock_repo):
     (workflow_dir / "test.yml").write_text("name: Test")
     (workflow_dir / "build.yml").write_text("name: Build")
     
-    # Add various hidden files and directories
+    # Add various hidden files
     (mock_repo / ".env").write_text("SECRET=123")
     (mock_repo / ".github" / "README.md").write_text("# GitHub Config")
-    (mock_repo / ".vscode" / "settings.json").write_text("{}")
     
     # Add some regular files and directories
     docs_dir = mock_repo / "docs" / "readme" / "sections"
     docs_dir.mkdir(parents=True)
     (docs_dir / "introduction.md").write_text("# Intro")
     
-    # Add some files that should be ignored
+    # Add some files that should typically be ignored
     cache_dir = mock_repo / "__pycache__"
     cache_dir.mkdir()
     (cache_dir / "module.pyc").write_text("cache")
@@ -39,7 +38,7 @@ def test_ignore_patterns():
         "tool": {
             "readme": {
                 "tree": {
-                    "ignore_patterns": [".git", "__pycache__", ".vscode"]
+                    "ignore_patterns": ["__pycache__", "*.pyc", ".git"]
                 }
             }
         }
@@ -48,12 +47,12 @@ def test_ignore_patterns():
     # Should exclude based on ignore patterns
     assert should_include_path(Path(".git/config"), config) is False
     assert should_include_path(Path("foo/__pycache__/bar.pyc"), config) is False
-    assert should_include_path(Path(".vscode/settings.json"), config) is False
     
     # Should include everything else, including hidden files not in ignore patterns
     assert should_include_path(Path(".github/workflows/test.yml"), config) is True
     assert should_include_path(Path(".env"), config) is True
     assert should_include_path(Path("docs/readme/file.md"), config) is True
+    assert should_include_path(Path(".vscode/settings.json"), config) is True  # Not in ignore patterns
 
 def test_full_tree_generation(mock_repo_with_files, monkeypatch):
     """Test complete tree generation with various file types"""
