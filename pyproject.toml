@@ -7,6 +7,8 @@ dependencies = [
     "Jinja2>=3.1.2",
     "tomli>=2.0.1",
     "loguru>=0.7.0",
+    "fire>=0.5.0",
+    "tree-format>=0.1.2",  # Pure Python tree formatter
 ]
 
 [build-system]
@@ -28,4 +30,17 @@ todo_items = [
     "Expand documentation with more examples",
     "Add testing framework",
     "Add more reusable components"
+]
+
+[tool.readme.tree]
+ignore_patterns = [
+    "__pycache__",
+    "*.pyc",
+    ".git",
+    ".github",
+    ".venv",
+    ".pytest_cache",
+    ".vscode",
+    ".idea",
+    "*.egg-info",
 ]
