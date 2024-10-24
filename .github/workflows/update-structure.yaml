@@ -11,7 +11,11 @@ env:
   PYTHON_VERSION: "3.11"
 
 jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+
   update-structure:
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -30,7 +34,7 @@ jobs:
         run: pip install -e .
       
       - name: Update structure
-        run: LOGURU_LEVEL=DEBUG python -m readme_generator structure
+        run: python -m readme_generator structure
       
       - name: Trigger README rebuild
         env:
