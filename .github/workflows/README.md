@@ -8,7 +8,7 @@ Automated workflows for project maintenance.
 - Keep workflows focused and modular
 - Reuse virtual environments when possible
 - Install project as package instead of managing dependencies directly
-- Use workflow triggers appropriately
+- All workflows should have a `workflow_dispatch` event trigger.
 
 ## Key Workflows
 
