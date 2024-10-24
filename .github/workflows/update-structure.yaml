@@ -14,8 +14,8 @@ env:
 jobs:
   update-structure:
     runs-on: ubuntu-latest
-    outputs:
-      tree: ${{ steps.generate-tree.outputs.tree }}
+    permissions:
+      contents: write
     
     steps:
       - uses: actions/checkout@v4
@@ -24,34 +24,35 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
       
-      - name: Generate directory tree
-        id: generate-tree
-        run: python scripts/generate_tree.py
-
-  trigger-readme-build:
-    needs: update-structure
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Update structure template
-        run: |
-          mkdir -p docs/readme/sections
-          echo "{{ structure_tree }}" > docs/readme/sections/structure.md.j2
-          sed -i "s|{{ structure_tree }}|${{ needs.update-structure.outputs.tree }}|" docs/readme/sections/structure.md.j2
-      
-      - name: Create pull request
-        uses: peter-evans/create-pull-request@v6
+      - name: Cache virtual environment
+        uses: actions/cache@v4
+        id: venv-cache
         with:
-          commit-message: "docs: update project structure tree"
-          title: "docs: update project structure tree"
-          branch: update-project-structure
-          delete-branch: true
-          body: |
-            This PR updates the project structure tree in the README.
-            
-            Generated automatically by the Update File Structure workflow.
+          path: ${{ env.VENV_PATH }}
+          key: venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('pyproject.toml', 'scripts/**') }}
+          restore-keys: |
+            venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-
+      
+      - name: Create and activate virtual environment
+        if: steps.venv-cache.outputs.cache-hit != 'true'
+        run: |
+          python -m venv ${{ env.VENV_PATH }}
+          source ${{ env.VENV_PATH }}/bin/activate
+          pip install tomli
+      
+      - name: Install local scripts
+        run: |
+          source ${{ env.VENV_PATH }}/bin/activate
+          cd scripts && pip install -e .
+      
+      - name: Generate tree and update template
+        run: |
+          source ${{ env.VENV_PATH }}/bin/activate
+          cd scripts && python generate_tree.py
+      
+      - name: Trigger README rebuild
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run build-readme.yml
