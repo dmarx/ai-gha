@@ -9,6 +9,11 @@ Features:
 - Modular section templates for easy maintenance
 - Simple extension mechanism for adding new sections
 
+## Project Structure
+
+```
+
+```
 ## TODO
 
 - [ ] Add more section templates
