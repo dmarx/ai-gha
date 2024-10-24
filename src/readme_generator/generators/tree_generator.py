@@ -15,14 +15,16 @@ def should_include_path(path: Path, config: dict) -> bool:
         logger.debug(f"Path {path_str} matched ignore pattern")
         return False
     
-    # Special handling for .github/workflows
-    if ".github/workflows" in path_str:
-        show_workflows = config["tool"]["readme"]["tree"].get("show_workflows", True)
-        logger.debug(f"Workflow path {path_str}, show_workflows={show_workflows}")
-        return show_workflows
+    # Check workflows first, before general hidden file check
+    if ".github" in path_str:
+        # Include both .github and its subdirectories for workflows
+        if ".github/workflows" in path_str or path_str == ".github":
+            show_workflows = config["tool"]["readme"]["tree"].get("show_workflows", True)
+            logger.debug(f"Workflow path {path_str}, show_workflows={show_workflows}")
+            return show_workflows
     
-    # Exclude hidden files/directories unless explicitly allowed
-    if path.name.startswith('.') and not ".github/workflows" in path_str:
+    # Exclude other hidden files/directories
+    if path.name.startswith('.'):
         logger.debug(f"Hidden path {path_str} excluded")
         return False
         
@@ -48,7 +50,7 @@ def node_to_tree(path: Path, config: dict) -> Optional[Tuple[str, list]]:
         if node is not None:
             children.append(node)
     
-    # If it's a directory and has no visible children, don't show it
+    # Keep .github directory even if workflows are hidden
     if not children and path.name not in {'.github', 'docs', 'src'}:
         logger.debug(f"Excluding empty directory: {path}")
         return None
