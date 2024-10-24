@@ -22,12 +22,12 @@ def mock_repo_with_files(mock_repo):
     
     # Add some regular files and directories
     docs_dir = mock_repo / "docs" / "readme" / "sections"
-    docs_dir.mkdir(parents=True)
+    docs_dir.mkdir(parents=True, exist_ok=True)  # Added exist_ok=True
     (docs_dir / "introduction.md").write_text("# Intro")
     
     # Add some files that should typically be ignored
     cache_dir = mock_repo / "__pycache__"
-    cache_dir.mkdir()
+    cache_dir.mkdir(exist_ok=True)  # Added exist_ok=True
     (cache_dir / "module.pyc").write_text("cache")
     
     return mock_repo
@@ -38,21 +38,23 @@ def test_ignore_patterns():
         "tool": {
             "readme": {
                 "tree": {
-                    "ignore_patterns": ["__pycache__", "*.pyc", ".git"]
+                    "ignore_patterns": [".git", "__pycache__", "*.pyc"]
                 }
             }
         }
     }
     
-    # Should exclude based on ignore patterns
+    # Should exclude based on exact pattern matches
     assert should_include_path(Path(".git/config"), config) is False
     assert should_include_path(Path("foo/__pycache__/bar.pyc"), config) is False
+    assert should_include_path(Path("test.pyc"), config) is False
     
-    # Should include everything else, including hidden files not in ignore patterns
-    assert should_include_path(Path(".github/workflows/test.yml"), config) is True
+    # Should include non-matching paths
+    assert should_include_path(Path(".github/workflows/test.yml"), config) is True  # .github != .git
     assert should_include_path(Path(".env"), config) is True
     assert should_include_path(Path("docs/readme/file.md"), config) is True
-    assert should_include_path(Path(".vscode/settings.json"), config) is True  # Not in ignore patterns
+    assert should_include_path(Path(".vscode/settings.json"), config) is True
+    assert should_include_path(Path("my_cache/file.txt"), config) is True  # Only exact __pycache__ matches
 
 def test_full_tree_generation(mock_repo_with_files, monkeypatch):
     """Test complete tree generation with various file types"""
@@ -88,9 +90,9 @@ ignore_patterns = ["__pycache__", "*.pyc", ".git"]
 def test_empty_directory_handling(mock_repo):
     """Test handling of empty directories"""
     # Create some empty directories
-    (mock_repo / "docs" / "empty").mkdir(parents=True)
-    (mock_repo / "src" / "empty").mkdir(parents=True)
-    (mock_repo / "temp" / "empty").mkdir(parents=True)
+    (mock_repo / "docs" / "empty").mkdir(parents=True, exist_ok=True)
+    (mock_repo / "src" / "empty").mkdir(parents=True, exist_ok=True)
+    (mock_repo / "temp" / "empty").mkdir(parents=True, exist_ok=True)
     
     config = {
         "tool": {
