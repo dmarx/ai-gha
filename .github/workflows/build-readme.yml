@@ -1,0 +1,71 @@
+name: Build README
+
+on:
+  push:
+    paths:
+      - 'docs/readme/**'
+      - 'pyproject.toml'
+      - '.github/workflows/build-readme.yml'
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.11"
+  VENV_PATH: .venv
+
+jobs:
+  build-readme:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      
+      - name: Get pip cache dir
+        id: pip-cache
+        run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache virtual environment
+        uses: actions/cache@v4
+        id: venv-cache
+        with:
+          path: ${{ env.VENV_PATH }}
+          key: venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-
+      
+      - name: Create and activate virtual environment
+        if: steps.venv-cache.outputs.cache-hit != 'true'
+        run: |
+          python -m venv ${{ env.VENV_PATH }}
+          source ${{ env.VENV_PATH }}/bin/activate
+          pip install tomli jinja2
+      
+      - name: Generate README
+        run: |
+          source ${{ env.VENV_PATH }}/bin/activate
+          python scripts/generate_readme.py
+      
+      - name: Check for README changes
+        id: readme-changes
+        run: |
+          if [[ -n "$(git status --porcelain README.md)" ]]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push if README changed
+        if: steps.readme-changes.outputs.changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add README.md
+          git commit -m "docs: update README.md [skip ci]"
+          git push
