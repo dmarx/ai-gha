@@ -6,12 +6,11 @@ on:
       - 'docs/readme/**'
       - 'pyproject.toml'
       - '.github/workflows/build-readme.yml'
-      - 'scripts/**'
+      - 'src/**'
   workflow_dispatch:
 
 env:
   PYTHON_VERSION: "3.11"
-  VENV_PATH: .venv
 
 jobs:
   build-readme:
@@ -28,32 +27,8 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
       
-      - name: Get pip cache dir
-        id: pip-cache
-        run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
-
-      - name: Cache virtual environment
-        uses: actions/cache@v4
-        id: venv-cache
-        with:
-          path: ${{ env.VENV_PATH }}
-          key: venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('pyproject.toml', 'scripts/**') }}
-          restore-keys: |
-            venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-
-      
-      - name: Create and activate virtual environment
-        if: steps.venv-cache.outputs.cache-hit != 'true'
-        run: |
-          python -m venv ${{ env.VENV_PATH }}
-          source ${{ env.VENV_PATH }}/bin/activate
-          pip install tomli loguru jinja2
-      
-      - name: Install local scripts
-        run: |
-          source ${{ env.VENV_PATH }}/bin/activate
-          cd scripts && pip install -e .
+      - name: Install package
+        run: pip install -e .
       
       - name: Generate README
-        run: |
-          source ${{ env.VENV_PATH }}/bin/activate
-          cd scripts && python generate_readme.py
+        run: python -m readme_generator readme
