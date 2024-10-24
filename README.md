@@ -130,6 +130,8 @@ To add new README sections:
 3. Add any necessary configuration to `pyproject.toml`
 ## Project Structure
 
+The repository is organized as follows:
+
 ```
 ai-gha
 ├── LICENSE
@@ -154,6 +156,23 @@ ai-gha
         └── utils.py
 
 ```
+
+### Key Components
+
+- `.github/workflows/`: GitHub Actions workflow definitions
+  - `build-readme.yml`: Automatically rebuilds README when content changes
+  - `update-structure.yml`: Updates project structure documentation
+
+- `docs/readme/`: README template files
+  - `base.md.j2`: Main template file
+  - `sections/`: Individual section templates
+
+- `src/readme_generator/`: Core Python package
+  - `generators.py`: Main generation logic
+  - `utils.py`: Shared utility functions
+  - `__main__.py`: CLI entry point
+
+- `pyproject.toml`: Project configuration and dependencies
 ## TODO
 
 - [ ] Add more utility functions for common agent operations
