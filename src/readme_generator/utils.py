@@ -5,14 +5,41 @@ import subprocess
 from loguru import logger
 
 def get_project_root() -> Path:
-    """Get the project root directory"""
-    return Path(os.getcwd()).parent
+    """
+    Get the project root directory by looking for pyproject.toml
+    Returns the absolute path to the project root
+    """
+    current = Path.cwd().absolute()
+    
+    # Look for pyproject.toml in current and parent directories
+    while current != current.parent:
+        if (current / 'pyproject.toml').exists():
+            return current
+        current = current.parent
+    
+    # If we couldn't find it, use the current working directory
+    # and log a warning
+    logger.warning("Could not find pyproject.toml in parent directories")
+    return Path.cwd().absolute()
 
 def load_config(config_path: str) -> dict:
-    """Load configuration from a TOML file"""
-    full_path = get_project_root() / config_path
-    with open(full_path, "rb") as f:
-        return tomli.load(f)
+    """
+    Load configuration from a TOML file
+    
+    Args:
+        config_path (str): Path to the TOML configuration file relative to project root
+        
+    Returns:
+        dict: Parsed configuration data
+    """
+    try:
+        full_path = get_project_root() / config_path
+        logger.debug(f"Attempting to load config from: {full_path}")
+        with open(full_path, "rb") as f:
+            return tomli.load(f)
+    except FileNotFoundError:
+        logger.error(f"Configuration file not found: {full_path}")
+        raise
 
 def commit_and_push(file_to_commit):
     """Commit and push changes for a specific file"""
