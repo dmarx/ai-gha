@@ -1,6 +1,6 @@
 from jinja2 import Environment, FileSystemLoader
 from pathlib import Path
-from utils import load_config, get_project_root
+from utils import load_config, get_project_root, commit_and_push
 
 def generate_readme():
     project_root = get_project_root()
@@ -32,8 +32,20 @@ def generate_readme():
     output = template.render(**variables)
     
     # Write to README.md in project root
-    with open(project_root / 'README.md', 'w') as f:
+    readme_path = project_root / 'README.md'
+    with open(readme_path, 'w') as f:
         f.write(output)
+    
+    # Commit and push changes
+    try:
+        commit_and_push(
+            path='README.md',
+            commit_message="docs: update README",
+            cwd=project_root
+        )
+    except subprocess.CalledProcessError as e:
+        print(f"Warning: Git operation failed: {e}")
+        raise
 
 if __name__ == '__main__':
     generate_readme()
