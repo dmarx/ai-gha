@@ -1,10 +1,47 @@
 from pathlib import Path
-from typing import Set
+from typing import Set, List
 from loguru import logger
 from jinja2 import Environment, FileSystemLoader
+from tree_format import format_tree
 from .utils import load_config, get_project_root, commit_and_push
 
-def generate_readme():
+def node_to_tree(path: Path, ignore_patterns: Set[str]) -> tuple:
+    """Convert a path to a tree node format"""
+    if any(pattern in str(path) for pattern in ignore_patterns):
+        return None
+    
+    if path.is_file():
+        return path.name, []
+    
+    children = []
+    for child in sorted(path.iterdir()):
+        node = node_to_tree(child, ignore_patterns)
+        if node is not None:
+            children.append(node)
+    
+    return path.name, children
+
+def generate_tree(root_dir: str = ".") -> str:
+    """Generate a pretty directory tree"""
+    logger.info(f"Generating tree from {root_dir}")
+    
+    # Load ignore patterns from config
+    project_config = load_config("pyproject.toml")
+    ignore_patterns = set(project_config["tool"]["readme"]["tree"]["ignore_patterns"])
+    
+    root_path = Path(root_dir)
+    tree_root = node_to_tree(root_path, ignore_patterns)
+    
+    if tree_root is None:
+        return ""
+    
+    return format_tree(
+        tree_root,
+        format_node=lambda x: x[0],
+        get_children=lambda x: x[1]
+    )
+
+def generate_readme() -> None:
     """Generate README from templates and commit changes"""
     project_root = get_project_root()
     logger.debug(f"Project root identified as: {project_root}")
@@ -43,39 +80,7 @@ def generate_readme():
     logger.info("Committing changes")
     commit_and_push('README.md')
 
-
-def generate_tree(
-    root_dir: str = ".",
-    ignore_patterns: Set[str] = {
-        "__pycache__", 
-        ".git", 
-        ".venv", 
-        "*.pyc", 
-        ".pytest_cache",
-        ".vscode",
-        ".idea"
-    }
-) -> str:
-    """Generate a markdown-formatted directory tree"""
-    logger.info(f"Generating tree from {root_dir}")
-    tree_lines = []
-    root_path = Path(root_dir)
-
-    for path in sorted(Path(root_dir).rglob("*")):
-        if any(pattern in str(path) for pattern in ignore_patterns):
-            continue
-            
-        relative_path = path.relative_to(root_path)
-        if any(part.startswith(".") for part in relative_path.parts):
-            continue
-            
-        depth = len(relative_path.parts) - 1
-        prefix = "    " * depth + "├── " if depth > 0 else ""
-        tree_lines.append(f"{prefix}{relative_path.name}")
-    
-    return "\n".join(tree_lines)
-
-def update_structure():
+def update_structure() -> None:
     """Update the structure template and commit changes"""
     project_root = get_project_root()
     template_path = "docs/readme/sections/structure.md.j2"
