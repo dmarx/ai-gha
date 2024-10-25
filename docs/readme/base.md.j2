@@ -1,17 +1,8 @@
-# {{project_name}}
+# {{ title }}
 
-{{project_description}}
+{# Get all section templates and sort them #}
+{% set sections = namespace(files=[]) %}
+{% for template in get_section_templates() | sort %}
+{% include template %}
 
-{% include "sections/introduction.md.j2" %}
-
-{% include "sections/prerequisites.md.j2" %}
-
-{% include "sections/usage.md.j2" %}
-
-{% include "sections/development.md.j2" %}
-
-{% include "sections/site.md.j2" %}
-
-{% include "sections/structure.md.j2" %}
-
-{% include "sections/todo.md.j2" %}
+{% endfor %}
