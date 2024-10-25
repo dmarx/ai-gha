@@ -1,12 +1,21 @@
 # Source Packages
 
-This directory contains the core packages for the project. Each package follows consistent conventions and patterns to maintain clean, maintainable, and LLM-friendly code.
+This directory contains the core packages for the project. The codebase follows strict separation of concerns and modular design principles to maintain clean, maintainable, and LLM-friendly code.
 
-## Package Organization
+## Core Principles
 
+### Separation of Concerns
+- Each package has a single, well-defined responsibility
+- Packages are independent and self-contained
+- Cross-cutting concerns (logging, CLI) use consistent patterns
+- New features should be built as separate packages when appropriate
+- Shared utilities only for truly common functionality
+
+### Package Organization
 - Each package is self-contained and focused
 - READMEs document package-specific details
 - Tests live in the root `tests/` directory
+- Common patterns implemented independently per package
 
 ## Development Conventions
 
@@ -18,8 +27,17 @@ This directory contains the core packages for the project. Each package follows 
 
 ### Dependencies
 - All dependencies declared in root `pyproject.toml`
-- No package-level `requirements.txt` or `setup.py`
-- Use optional dependencies for package-specific needs
+- Dependencies organized into optional feature groups
+- Use `[all]` for complete development environment
+- Example usage:
+  ```bash
+  # Install specific features
+  pip install -e ".[test]"     # Just testing deps
+  pip install -e ".[site]"     # Just site generation deps
+  
+  # Install everything
+  pip install -e ".[all]"      # All optional dependencies
+  ```
 
 ### Logging & CLI
 - Use `loguru` for all logging
