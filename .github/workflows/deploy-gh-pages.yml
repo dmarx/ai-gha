@@ -6,6 +6,9 @@ on:
     types:
       - completed
   workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/deploy-pages.yml'
 
 env:
   PYTHON_VERSION: "3.11"
@@ -42,7 +45,7 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
         with:
-          enablement: true  # Automatically enable GitHub Pages
+          enablement: true
           
       - name: Build site
         run: python -m site_generator build
