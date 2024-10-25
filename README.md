@@ -223,16 +223,18 @@ ai-gha
 ├── README.md
 ├── docs
 │   ├── README.md
-│   └── readme
-│       ├── README.md
-│       ├── base.md.j2
-│       └── sections
-│           ├── development.md.j2
-│           ├── introduction.md.j2
-│           ├── prerequisites.md.j2
-│           ├── structure.md.j2
-│           ├── todo.md.j2
-│           └── usage.md.j2
+│   ├── readme
+│   │   ├── README.md
+│   │   ├── base.md.j2
+│   │   └── sections
+│   │       ├── development.md.j2
+│   │       ├── introduction.md.j2
+│   │       ├── prerequisites.md.j2
+│   │       ├── structure.md.j2
+│   │       ├── todo.md.j2
+│   │       └── usage.md.j2
+│   └── site
+│       └── template.html
 ├── pyproject.toml
 ├── src
 │   └── readme_generator
