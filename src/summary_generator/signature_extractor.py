@@ -16,6 +16,15 @@ class Signature:
     decorators: list[str]
     methods: list['Signature']  # For storing class methods
 
+class ParentNodeTransformer(ast.NodeTransformer):
+    """Add parent references to all nodes in the AST."""
+    
+    def visit(self, node: ast.AST) -> ast.AST:
+        """Visit a node and add parent references to all its children."""
+        for child in ast.iter_child_nodes(node):
+            child.parent = node
+        return super().visit(node)
+
 class SignatureExtractor:
     """Extracts detailed signatures from Python files."""
     
@@ -49,7 +58,11 @@ class SignatureExtractor:
     def extract_signatures(self, source: str) -> List[Signature]:
         """Extract all function and class signatures from source code."""
         try:
+            # Parse and add parent references
             tree = ast.parse(source)
+            transformer = ParentNodeTransformer()
+            transformer.visit(tree)
+            
             signatures: List[Signature] = []
             classes: Dict[ast.ClassDef, Signature] = {}
             
@@ -74,7 +87,7 @@ class SignatureExtractor:
                     
                     sig = Signature(
                         name=node.name,
-                        kind='method' if isinstance(node.parent, ast.ClassDef) else 'function',
+                        kind='method' if hasattr(node, 'parent') and isinstance(node.parent, ast.ClassDef) else 'function',
                         args=args,
                         returns=returns,
                         docstring=ast.get_docstring(node),
@@ -83,7 +96,7 @@ class SignatureExtractor:
                     )
                     
                     # Add to appropriate parent
-                    if isinstance(node.parent, ast.ClassDef) and node.parent in classes:
+                    if hasattr(node, 'parent') and isinstance(node.parent, ast.ClassDef) and node.parent in classes:
                         classes[node.parent].methods.append(sig)
                     else:
                         signatures.append(sig)
@@ -157,40 +170,3 @@ class SignatureExtractor:
                 lines.append("")  # Add spacing between methods
         
         return lines
-
-def generate_python_summary(root_dir: str | Path) -> str:
-    """Generate enhanced Python project structure summary."""
-    root_dir = Path(root_dir)
-    extractor = SignatureExtractor()
-    content = ["# Python Project Structure\n"]
-    
-    for file in sorted(root_dir.rglob("*.py")):
-        if any(part.startswith('.') for part in file.parts):
-            continue
-        if '__pycache__' in file.parts:
-            continue
-            
-        try:
-            # Get relative path
-            rel_path = file.relative_to(root_dir)
-            
-            # Read and extract signatures
-            source = file.read_text()
-            signatures = extractor.extract_signatures(source)
-            
-            # Only include files that have actual content
-            if signatures:
-                content.append(f"## {rel_path}")
-                content.append("```python")
-                
-                # Format each signature
-                for sig in signatures:
-                    content.extend(extractor.format_signature(sig))
-                    content.append("")  # Add spacing between top-level items
-                
-                content.append("```\n")
-            
-        except Exception as e:
-            logger.error(f"Error processing {file}: {e}")
-    
-    return "\n".join(content)
