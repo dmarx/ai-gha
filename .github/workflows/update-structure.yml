@@ -1,10 +1,7 @@
-name: Update File Structure
+name: Update Structure
 
 on:
   push:
-    paths-ignore:
-      - 'README.md'
-      - '.github/workflows/**'
   workflow_dispatch:
 
 env:
@@ -19,7 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      actions: write
     
     steps:
       - uses: actions/checkout@v4
@@ -31,14 +27,7 @@ jobs:
           cache: pip
       
       - name: Install package
-        run: pip install -e .
+        run: pip install -e ".[all]"
       
       - name: Update structure
         run: python -m readme_generator structure
-      
-      - name: Trigger README rebuild
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          sleep 5
-          gh workflow run build-readme.yml || echo "Failed to trigger workflow directly, changes will be picked up by push trigger"
