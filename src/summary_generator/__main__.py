@@ -3,7 +3,48 @@ import fire
 from loguru import logger
 from pathlib import Path
 from . import generator
-from readme_generator.utils import commit_and_push
+#from readme_generator.utils import commit_and_push
+
+import subprocess
+from pathlib import Path
+from typing import Optional
+
+def commit_and_push(
+    message: str,
+    branch: str,
+    paths: list[str | Path],
+    base_branch: Optional[str] = None
+) -> None:
+    """Commit changes and push to specified branch.
+    
+    Args:
+        message: Commit message
+        branch: Branch to push to
+        paths: List of paths to commit
+        base_branch: Optional base branch to create new branch from
+    """
+    # Convert paths to strings
+    path_strs = [str(p) for p in paths]
+    
+    # Set up git config
+    subprocess.run(["git", "config", "--local", "user.email", "github-actions[bot]@users.noreply.github.com"])
+    subprocess.run(["git", "config", "--local", "user.name", "github-actions[bot]"])
+    
+    # Create/switch to branch
+    if base_branch:
+        subprocess.run(["git", "checkout", "-b", branch, base_branch])
+    else:
+        subprocess.run(["git", "checkout", "-B", branch])
+        subprocess.run(["git", "pull", "origin", branch], capture_output=True)
+    
+    # Add and commit changes
+    subprocess.run(["git", "add", *path_strs])
+    
+    # Only commit if there are changes
+    result = subprocess.run(["git", "diff", "--staged", "--quiet"], capture_output=True)
+    if result.returncode == 1:  # Changes exist
+        subprocess.run(["git", "commit", "-m", message])
+        subprocess.run(["git", "push", "origin", branch])
 
 def generate(root_dir: str = ".", push: bool = True) -> list[Path]:
     """Generate directory summaries.
