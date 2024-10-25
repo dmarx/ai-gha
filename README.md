@@ -349,11 +349,13 @@ ai-gha
 │   │   │   ├── structure_generator.py
 │   │   │   └── tree_generator.py
 │   │   └── utils.py
-│   └── site_generator
-│       ├── README.md
-│       ├── __init__.py
-│       ├── __main__.py
-│       └── generator.py
+│   ├── site_generator
+│   │   ├── README.md
+│   │   ├── __init__.py
+│   │   ├── __main__.py
+│   │   └── generator.py
+│   └── summary_generator
+│       └── __init__.py
 └── tests
     ├── conftest.py
     ├── test_generators.py
