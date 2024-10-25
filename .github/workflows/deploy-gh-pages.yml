@@ -1,73 +1,49 @@
 name: Deploy to GitHub Pages
 
 on:
-  # Trigger on README updates
   workflow_run:
     workflows: ["Build README"]
     types:
       - completed
-  # Allow manual triggers
   workflow_dispatch:
 
+env:
+  PYTHON_VERSION: "3.11"
+
 jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+
   deploy:
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pages: write
       id-token: write
-
+    
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - uses: actions/checkout@v4
-
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      
+      - name: Install package
+        run: |
+          python -m pip install -e ".[site]"
+      
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
-      - name: Create site directory
-        run: |
-          mkdir -p _site
-          cp README.md _site/index.md
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install markdown2
-
-      - name: Convert README to HTML
-        run: |
-          python -c "
-          import markdown2
-          import re
-          
-          # Read the template
-          with open('docs/site/template.html', 'r') as f:
-              template = f.read()
-          
-          # Read and convert README
-          with open('_site/index.md', 'r') as f:
-              md_content = f.read()
-              html_content = markdown2.markdown(
-                  md_content,
-                  extras=['fenced-code-blocks', 'tables']
-              )
-          
-          # Insert into template
-          final_html = template.replace('{{content}}', html_content)
-          
-          # Write output
-          with open('_site/index.html', 'w') as f:
-              f.write(final_html)
-          "
-          rm _site/index.md
+      - name: Build site
+        run: python -m site_generator build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
