@@ -49,7 +49,7 @@ from . import generator
 from . import special_summaries
 
 
-def generate(root_dir: str = ".", push: bool = True) -> List[Path]:
+def generate(root_dir: str = ".", push: bool = True) -> list[Path]:
     """Generate directory summaries and special summaries.
     
     Args:
