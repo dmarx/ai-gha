@@ -1,8 +1,7 @@
 # {{ title }}
 
-{# Get all section templates and sort them #}
-{% set sections = namespace(files=[]) %}
-{% for template in get_section_templates() | sort %}
-{% include template %}
+{# Get all section templates and include them with proper path #}
+{% for template in get_section_templates() %}
+{% include "sections/" ~ template %}
 
 {% endfor %}
