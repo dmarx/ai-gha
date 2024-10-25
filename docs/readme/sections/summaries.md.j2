@@ -1,0 +1,66 @@
+# LLM-Focused Summary System
+
+## Overview
+The project includes an automated summary generation system designed to help LLMs efficiently work with the codebase. This system generates both local directory summaries and project-wide summaries to provide focused, relevant context for different tasks.
+
+## Types of Summaries
+
+### Directory Summaries
+Each directory in the project contains a `SUMMARY` file that concatenates all text files in that directory. This provides focused, local context when working on directory-specific tasks.
+
+### Project-Wide Summaries
+Special project-wide summaries are maintained in the `SUMMARIES/` directory on the `summaries` branch:
+
+- `READMEs.md`: Concatenation of all README files in the project
+- `README_SUBs.md`: Same as above but excluding the root README
+- `PYTHON.md`: Structured view of all Python code including:
+  - Function and class signatures
+  - Type hints
+  - Docstrings
+  - Clear indication of class membership
+
+## Accessing Summaries
+
+### Directory Summaries
+These are available on any branch in their respective directories:
+```bash
+# Example: View summary for the readme_generator package
+cat src/readme_generator/SUMMARY
+```
+
+### Project-Wide Summaries
+These live exclusively on the `summaries` branch:
+```bash
+# Switch to summaries branch
+git checkout summaries
+
+# View available summaries
+ls SUMMARIES/
+```
+
+## Using Summaries Effectively
+
+### For Local Development
+Directory summaries are useful when:
+- Getting up to speed on a specific package
+- Understanding local code context
+- Planning modifications to a package
+
+### For Project-Wide Understanding
+The `SUMMARIES/` directory helps with:
+- Understanding overall project structure
+- Finding relevant code across packages
+- Reviewing API signatures and documentation
+- Planning cross-package changes
+
+### For LLM Interactions
+- Point LLMs to specific summaries based on the task
+- Use directory summaries for focused work
+- Use project-wide summaries for architectural decisions
+- Combine different summaries as needed for context
+
+## Implementation Notes
+- Summaries are automatically updated on every push to `main`
+- The `summaries` branch is workflow-owned and force-pushed on updates
+- Summary generation is configured in `pyproject.toml` under `[tool.summary]`
+- Don't modify summaries directly - they're automatically generated
