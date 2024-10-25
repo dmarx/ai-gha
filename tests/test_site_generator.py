@@ -2,7 +2,7 @@
 import pytest
 from pathlib import Path
 
-from readme_generator.generators.site_generator import build_site
+from site_generator.generator import build_site
 
 @pytest.fixture
 def temp_site_dir(tmp_path):
@@ -29,7 +29,7 @@ def test_build_site(temp_site_dir, mock_readme, mock_template, monkeypatch):
     """Test basic site generation."""
     # Mock get_project_root to use our temp directory
     monkeypatch.setattr(
-        "readme_generator.generators.site_generator.get_project_root",
+        "site_generator.generator.get_project_root",
         lambda: mock_readme.parent
     )
     
@@ -54,7 +54,7 @@ def test_build_site_missing_readme(temp_site_dir, mock_template, monkeypatch):
     """Test handling of missing README."""
     # Mock get_project_root to use template directory parent
     monkeypatch.setattr(
-        "readme_generator.generators.site_generator.get_project_root",
+        "site_generator.generator.get_project_root",
         lambda: mock_template.parent.parent.parent
     )
     
