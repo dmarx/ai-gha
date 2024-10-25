@@ -1,10 +1,3 @@
-"""CLI entry point for summary generator."""
-import fire
-from loguru import logger
-from pathlib import Path
-from . import generator
-#from readme_generator.utils import commit_and_push
-
 import subprocess
 from pathlib import Path
 from typing import Optional
@@ -46,8 +39,18 @@ def commit_and_push(
         subprocess.run(["git", "commit", "-m", message])
         subprocess.run(["git", "push", "origin", branch])
 
-def generate(root_dir: str = ".", push: bool = True) -> list[Path]:
-    """Generate directory summaries.
+
+"""CLI entry point for summary generator."""
+import fire
+from loguru import logger
+from pathlib import Path
+from . import generator
+#from readme_generator.utils import commit_and_push
+from . import special_summaries
+
+
+def generate(root_dir: str = ".", push: bool = True) -> List[Path]:
+    """Generate directory summaries and special summaries.
     
     Args:
         root_dir: Root directory to generate summaries for
@@ -57,19 +60,25 @@ def generate(root_dir: str = ".", push: bool = True) -> list[Path]:
         List of paths to generated summary files
     """
     logger.info(f"Generating summaries for {root_dir}")
+    
+    # Generate regular directory summaries
     gen = generator.SummaryGenerator(root_dir)
     summary_files = gen.generate_all_summaries()
+    
+    # Generate special summaries
+    special_files = special_summaries.generate_special_summaries(root_dir)
+    all_files = summary_files + special_files
     
     if push:
         logger.info("Committing and pushing changes")
         commit_and_push(
-            message="Update directory summaries",
+            message="Update directory summaries and special summaries",
             branch="summaries",
-            paths=summary_files,
+            paths=all_files,
             base_branch="main"
         )
     
-    return summary_files
+    return all_files
 
 def main():
     """CLI entry point."""
