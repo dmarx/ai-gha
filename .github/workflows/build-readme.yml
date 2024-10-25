@@ -32,7 +32,7 @@ jobs:
           cache: pip
       
       - name: Install package
-        run: pip install -e .
+        run: pip install -e ".[all]"
       
       - name: Generate README
         run: python -m readme_generator readme
