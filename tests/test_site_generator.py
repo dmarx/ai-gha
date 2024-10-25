@@ -42,11 +42,17 @@ def test_build_site(temp_site_dir, mock_readme, mock_template, monkeypatch):
     
     # Check content
     content = (temp_site_dir / "index.html").read_text()
-    assert "<h1>Test</h1>" in content
+    assert '<h1 id="test">Test</h1>' in content
     assert "This is a test README." in content
 
-def test_build_site_missing_template(temp_site_dir, mock_readme):
+def test_build_site_missing_template(temp_site_dir, mock_readme, monkeypatch):
     """Test handling of missing template."""
+    # Mock get_project_root to use our temp directory
+    monkeypatch.setattr(
+        "site_generator.generator.get_project_root",
+        lambda: mock_readme.parent
+    )
+    
     with pytest.raises(FileNotFoundError, match="Template not found"):
         build_site(str(temp_site_dir))
 
