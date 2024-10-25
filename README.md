@@ -359,7 +359,9 @@ ai-gha
 │       ├── README.md
 │       ├── __init__.py
 │       ├── __main__.py
-│       └── generator.py
+│       ├── generator.py
+│       ├── signature_extractor.py
+│       └── special_summaries.py
 └── tests
     ├── conftest.py
     ├── test_generators.py
