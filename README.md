@@ -314,6 +314,7 @@ ai-gha
 │       ├── README.md
 │       ├── build-readme.yml
 │       ├── deploy-gh-pages.yml
+│       ├── generate-summaries.yml
 │       ├── test.yml
 │       └── update-structure.yml
 ├── .gitignore
@@ -355,11 +356,15 @@ ai-gha
 │   │   ├── __main__.py
 │   │   └── generator.py
 │   └── summary_generator
-│       └── __init__.py
+│       ├── README.md
+│       ├── __init__.py
+│       ├── __main__.py
+│       └── generator.py
 └── tests
     ├── conftest.py
     ├── test_generators.py
     ├── test_site_generator.py
+    ├── test_summary_generator.py
     └── test_tree_generator.py
 
 ```
