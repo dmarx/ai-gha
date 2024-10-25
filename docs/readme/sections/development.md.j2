@@ -4,20 +4,42 @@
 
 When developing this project (or using it as a template), keep in mind these guidelines for effective collaboration with Large Language Models:
 
-1. **File Length and Modularity**
+1. **Separation of Concerns**
+   - Each package should have a single, clear responsibility
+   - New features should be separate packages when appropriate
+   - Avoid coupling between packages
+   - Use consistent patterns across packages, but implement independently
+   - Cross-cutting concerns should use shared conventions
+
+2. **File Length and Modularity**
    - Keep files short and focused on a single responsibility
    - If you find yourself using comments like "... rest remains the same" or "... etc", the file is too long
    - Files should be completely replaceable in a single LLM interaction
    - Long files should be split into logical components
 
-2. **Testing Standards**
+3. **Dependencies**
+   - All dependencies managed in `pyproject.toml`
+   - Optional dependencies grouped by feature:
+     ```toml
+     [project.optional-dependencies]
+     test = ["pytest", ...]
+     site = ["markdown2", ...]
+     all = ["pytest", "markdown2", ...]  # Everything
+     ```
+   - Use appropriate groups during development:
+     ```bash
+     pip install -e ".[test]"  # Just testing
+     pip install -e ".[all]"   # Everything
+     ```
+
+4. **Testing Standards**
    - Every new feature needs tests
    - Tests should be clear and focused
    - Use pytest fixtures for common setups
    - All workflows depend on tests passing
    - Test files should follow same modularity principles
 
-3. **Why This Matters**
+5. **Why This Matters**
    - LLMs work best with clear, focused contexts
    - Complete file contents are better than partial updates with ellipsis
    - Tests provide clear examples of intended behavior
@@ -27,23 +49,19 @@ When developing this project (or using it as a template), keep in mind these gui
      - Maintain consistency
      - Avoid potential errors from incomplete information
 
-4. **Real World Example**
-   Our own refactoring: We split `generators.py` into:
+6. **Real World Example**
+   Our own organization follows these principles:
    ```
-   generators/
-   ├── __init__.py
-   ├── readme_generator.py
-   ├── structure_generator.py
-   └── tree_generator.py
-   ```
-   And added corresponding tests:
-   ```
-   tests/
-   ├── conftest.py
-   └── test_generators.py
+   src/
+   ├── readme_generator/  # Core README generation
+   │   ├── generators/
+   │   └── utils.py
+   └── site_generator/    # Demo site generation
+       ├── generator.py
+       └── __main__.py
    ```
 
-5. **Best Practices**
+7. **Best Practices**
    - Aim for files under 200 lines
    - Each file should have a single, clear purpose
    - Use directory structure to organize related components
