@@ -16,6 +16,9 @@ test = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
 ]
+docs = [
+    "markdown2>=2.4.0",
+]
 
 [build-system]
 requires = ["hatchling"]
