@@ -1,4 +1,3 @@
-# src/summary_generator/README.md
 # Summary Generator
 
 Generate directory summaries to assist LLM interactions by providing focused context for each directory.
