@@ -51,9 +51,7 @@ ignore_patterns = [
     "*.egg-info",
 ]
 
-[
-tool.summary
-]
+[tool.summary]
 ignore_patterns = [
     "__pycache__",
     "*.pyc",
