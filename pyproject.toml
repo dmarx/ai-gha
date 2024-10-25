@@ -22,7 +22,11 @@ site = [
     "markdown2>=2.4.0",
 ]
 # Meta-dependency that includes everything
-all = test + site
+all = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "markdown2>=2.4.0",
+]
 
 [build-system]
 requires = ["hatchling"]
