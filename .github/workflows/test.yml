@@ -3,14 +3,14 @@ name: Tests
 on:
   push:
     branches: [ main ]
+    paths:
+      - '.github/workflows/test.yml'
+      - 'tests/**'
   pull_request:
     branches: [ main ]
   workflow_dispatch:
   workflow_call:
-  push:
-    paths:
-      - '.github/workflows/test.yml'
-      - 'tests/**'
+    
 env:
   PYTHON_VERSION: "3.11"
 
