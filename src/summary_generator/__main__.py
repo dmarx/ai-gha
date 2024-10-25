@@ -5,7 +5,7 @@ from pathlib import Path
 from . import generator
 from readme_generator.utils import commit_and_push
 
-def generate(root_dir: str = ".", push: bool = True) -> List[Path]:
+def generate(root_dir: str = ".", push: bool = True) -> list[Path]:
     """Generate directory summaries.
     
     Args:
