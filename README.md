@@ -251,7 +251,8 @@ ai-gha
 │   │   │   └── tree_generator.py
 │   │   └── utils.py
 │   └── site_generator
-│       └── README.md
+│       ├── README.md
+│       └── __main__.py
 └── tests
     ├── conftest.py
     ├── test_generators.py
