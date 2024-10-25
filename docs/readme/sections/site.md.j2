@@ -1,62 +1,56 @@
 ## GitHub Pages
 
-### Site Generation
+### Requirements
 
-The project includes automated GitHub Pages deployment through GitHub Actions. The site is automatically rebuilt whenever the README is updated.
+1. **Public Repository**
+   - GitHub Pages is available out-of-the-box for public repositories
+   - For private repositories, a GitHub Enterprise plan is required
+   - If you plan to make your repository public later, you can still set up and test the site generation locally
 
-### Setup
+2. **Repository Settings**
+   - Once your repository is public (or on an Enterprise plan):
+     - Go to Repository Settings → Pages
+     - Under "Build and deployment":
+       - Set Source to "GitHub Actions"
 
-1. **Enable GitHub Pages**
-   - Go to Repository Settings → Pages
-   - Set Source to "GitHub Actions"
+### Installation
 
-2. **Install Dependencies**
-   ```bash
-   # Install with docs dependencies
-   pip install -e ".[docs]"
-   ```
+```bash
+# Install with site generation dependencies
+pip install -e ".[all]"
+```
 
-3. **Local Development**
-   ```bash
-   # Generate site locally
-   python -m readme_generator site
-   
-   # Specify custom output directory
-   python -m readme_generator site --output_dir="custom_dir"
-   ```
+### Local Development
 
-### Features
+The site generator can be used locally regardless of repository visibility:
 
-- Automatic dark/light mode support
-- Mobile-responsive design
-- GitHub-style markdown rendering
-- Code syntax highlighting
-- Automatic deployment
-- Table of contents with anchor links
+```bash
+# Generate site locally
+python -m site_generator build
+
+# Site will be generated in _site/ directory (git-ignored)
+# View the generated site by opening _site/index.html in your browser
+```
 
 ### GitHub Actions Integration
 
-The site automatically rebuilds and deploys when:
+When requirements are met (public repository or Enterprise plan), the site automatically rebuilds and deploys when:
 - The README is updated through the `build-readme` workflow
+- The deployment workflow is modified
 - The workflow is manually triggered
 
-### Command Line Usage
+### File Structure
 
-```bash
-# Basic site generation
-python -m readme_generator site
-
-# Custom output directory
-python -m readme_generator site --output_dir="custom_dir"
 ```
-
-### Development
-
-The site generator follows the project's modular design principles:
-- Located in `generators/site_generator.py`
-- Uses `loguru` for logging
-- Implements comprehensive error handling
-- Includes pytest-based test suite
+your-repo/
+├── _site/           # Generated directory (git-ignored)
+│   └── index.html   # Generated site
+├── docs/
+│   └── site/       
+│       └── template.html  # Site template
+└── src/
+    └── site_generator/   # Generator package
+```
 
 ### Customization
 
@@ -65,3 +59,21 @@ The site template is located in `docs/site/template.html` and can be customized 
 - Additional JavaScript
 - Modified layout and structure
 - Custom header/footer content
+
+### Command Line Usage
+
+```bash
+# Generate site with default settings
+python -m site_generator build
+
+# Specify custom output directory
+python -m site_generator build --output_dir="custom_dir"
+```
+
+### Testing
+
+The site generation can be tested locally even if GitHub Pages deployment isn't available:
+```bash
+# Run the test suite
+pytest tests/test_site_generator.py
+```
