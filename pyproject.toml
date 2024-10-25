@@ -11,14 +11,18 @@ dependencies = [
     "tree-format>=0.1.2",
 ]
 
-[project.optional-dependencies]
-test = [
-    "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
+[
+project.optional-dependencies
 ]
-docs = [
+test = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+]
+site = [
     "markdown2>=2.4.0",
 ]
+# Meta-dependency that includes everything
+all = test + site
 
 [build-system]
 requires = ["hatchling"]
