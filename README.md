@@ -216,8 +216,9 @@ ai-gha
 │   └── workflows
 │       ├── README.md
 │       ├── build-readme.yml
+│       ├── deploy-gh-pages.yml
 │       ├── test.yml
-│       └── update-structure.yaml
+│       └── update-structure.yml
 ├── .gitignore
 ├── LICENSE
 ├── README.md
@@ -237,6 +238,7 @@ ai-gha
 │       └── template.html
 ├── pyproject.toml
 ├── src
+│   ├── README.md
 │   └── readme_generator
 │       ├── README.md
 │       ├── __init__.py
