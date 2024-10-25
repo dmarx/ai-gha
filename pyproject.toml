@@ -19,6 +19,10 @@ test = [
 site = [
     "markdown2>=2.4.0",
 ]
+summary = [
+    "loguru>=0.7.0",
+    "fire>=0.5.0",
+]
 # Meta-dependency that includes everything
 all = [
     "pytest>=7.0",
@@ -33,7 +37,7 @@ build-backend = "hatchling.build"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-v --cov=readme_generator"
+addopts = "-v --cov=readme_generator --cov=summary_generator"
 
 [tool.readme.tree]
 ignore_patterns = [
@@ -45,4 +49,18 @@ ignore_patterns = [
     ".vscode",
     ".idea",
     "*.egg-info",
+]
+
+[tool.summary]
+ignore_patterns = [
+    "__pycache__",
+    "*.pyc",
+    ".git",
+    ".venv",
+    ".pytest_cache",
+    ".vscode",
+    ".idea",
+    "*.egg-info",
+    "SUMMARY",
+    ".coverage",
 ]
