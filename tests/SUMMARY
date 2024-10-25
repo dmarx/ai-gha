@@ -1,0 +1,357 @@
+================================================================================
+File: tests/conftest.py
+================================================================================
+import pytest
+from pathlib import Path
+import tempfile
+import shutil
+
+@pytest.fixture
+def temp_dir():
+    """Provide a clean temporary directory"""
+    with tempfile.TemporaryDirectory() as td:
+        yield Path(td)
+
+@pytest.fixture
+def mock_repo(temp_dir):
+    """Create a mock repository structure for testing"""
+    # Create basic structure
+    docs_dir = temp_dir / "docs" / "readme" / "sections"
+    src_dir = temp_dir / "src" / "readme_generator"
+    
+    docs_dir.mkdir(parents=True)
+    src_dir.mkdir(parents=True)
+    
+    # Create mock files
+    (docs_dir / "introduction.md.j2").write_text("## Introduction\n{{ test }}")
+    (temp_dir / "pyproject.toml").write_text("""
+[project]
+name = "test-project"
+version = "0.1.0"
+
+[tool.readme]
+test = "Test Value"
+    """)
+    
+    return temp_dir
+
+
+
+================================================================================
+File: tests/test_generators.py
+================================================================================
+from pathlib import Path
+import pytest
+from readme_generator.generators.tree_generator import generate_tree
+from readme_generator.generators.readme_generator import generate_readme
+from readme_generator.utils import get_project_root, load_config
+
+def test_tree_generator(mock_repo):
+    """Test tree generation with mock repository"""
+    tree = generate_tree(str(mock_repo))
+    assert "docs" in tree
+    assert "src" in tree
+    assert "pyproject.toml" in tree
+
+def test_load_config(mock_repo):
+    """Test configuration loading"""
+    config = load_config(str(mock_repo / "pyproject.toml"))
+    assert config["project"]["name"] == "test-project"
+    assert config["project"]["version"] == "0.1.0"
+
+def test_project_root(mock_repo, monkeypatch):
+    """Test project root detection"""
+    monkeypatch.chdir(mock_repo)
+    root = get_project_root()
+    assert root.samefile(mock_repo)
+
+
+
+================================================================================
+File: tests/test_site_generator.py
+================================================================================
+"""Tests for site generation functionality."""
+import pytest
+from pathlib import Path
+
+from site_generator.generator import build_site
+
+@pytest.fixture
+def temp_site_dir(tmp_path):
+    """Provide a temporary directory for site output."""
+    return tmp_path / "site"
+
+@pytest.fixture
+def mock_readme(tmp_path):
+    """Create a mock README file."""
+    readme = tmp_path / "README.md"
+    readme.write_text("# Test\nThis is a test README.")
+    return readme
+
+@pytest.fixture
+def mock_template(tmp_path):
+    """Create a mock template file."""
+    template_dir = tmp_path / "docs" / "site"
+    template_dir.mkdir(parents=True)
+    template = template_dir / "template.html"
+    template.write_text("<html><body>{{content}}</body></html>")
+    return template
+
+def test_build_site(temp_site_dir, mock_readme, mock_template, monkeypatch):
+    """Test basic site generation."""
+    # Mock get_project_root to use our temp directory
+    monkeypatch.setattr(
+        "site_generator.generator.get_project_root",
+        lambda: mock_readme.parent
+    )
+    
+    # Build site
+    build_site(str(temp_site_dir))
+    
+    # Verify output
+    assert temp_site_dir.exists()
+    assert (temp_site_dir / "index.html").exists()
+    
+    # Check content
+    content = (temp_site_dir / "index.html").read_text()
+    assert '<h1 id="test">Test</h1>' in content
+    assert "This is a test README." in content
+
+def test_build_site_missing_template(temp_site_dir, mock_readme, monkeypatch):
+    """Test handling of missing template."""
+    # Mock get_project_root to use our temp directory
+    monkeypatch.setattr(
+        "site_generator.generator.get_project_root",
+        lambda: mock_readme.parent
+    )
+    
+    with pytest.raises(FileNotFoundError, match="Template not found"):
+        build_site(str(temp_site_dir))
+
+def test_build_site_missing_readme(temp_site_dir, mock_template, monkeypatch):
+    """Test handling of missing README."""
+    # Mock get_project_root to use template directory parent
+    monkeypatch.setattr(
+        "site_generator.generator.get_project_root",
+        lambda: mock_template.parent.parent.parent
+    )
+    
+    with pytest.raises(FileNotFoundError, match="README not found"):
+        build_site(str(temp_site_dir))
+
+
+
+================================================================================
+File: tests/test_summary_generator.py
+================================================================================
+"""Tests for summary generator package."""
+import pytest
+from pathlib import Path
+from summary_generator import SummaryGenerator
+
+@pytest.fixture
+def temp_project(tmp_path):
+    """Create a temporary project structure."""
+    # Create some test files
+    (tmp_path / "README.md").write_text("# Test Project")
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src/main.py").write_text("print('hello')")
+    (tmp_path / "src/utils.py").write_text("def test(): pass")
+    (tmp_path / ".git").mkdir()
+    (tmp_path / ".git/config").write_text("git config")
+    return tmp_path
+
+@pytest.fixture
+def generator(temp_project):
+    """Create a summary generator instance."""
+    return SummaryGenerator(temp_project)
+
+def test_should_include_file(generator):
+    """Test file inclusion logic."""
+    # Should include normal text files
+    assert generator.should_include_file(Path("test.py"))
+    assert generator.should_include_file(Path("test.md"))
+    assert generator.should_include_file(Path("test.yml"))
+    
+    # Should exclude special files
+    assert not generator.should_include_file(Path(".git/config"))
+    assert not generator.should_include_file(Path("__pycache__/test.pyc"))
+    assert not generator.should_include_file(Path("SUMMARY"))
+    
+    # Should exclude binary files
+    assert not generator.should_include_file(Path("test.png"))
+    assert not generator.should_include_file(Path("test.pyc"))
+
+def test_generate_directory_summary(generator, temp_project):
+    """Test summary generation for a directory."""
+    summary = generator.generate_directory_summary(temp_project / "src")
+    
+    # Should include both Python files
+    assert "main.py" in summary
+    assert "utils.py" in summary
+    assert "print('hello')" in summary
+    assert "def test(): pass" in summary
+    
+    # Should have proper separators
+    assert "=" * 80 in summary
+    assert "File:" in summary
+
+def test_generate_all_summaries(generator, temp_project):
+    """Test generating summaries for all directories."""
+    summary_files = generator.generate_all_summaries()
+    
+    # Should generate summaries in correct locations
+    assert len(summary_files) == 2  # Root and src directories
+    assert (temp_project / "SUMMARY") in summary_files
+    assert (temp_project / "src/SUMMARY") in summary_files
+    
+    # Summaries should contain correct content
+    root_summary = (temp_project / "SUMMARY").read_text()
+    assert "# Test Project" in root_summary
+    
+    src_summary = (temp_project / "src/SUMMARY").read_text()
+    assert "print('hello')" in src_summary
+    assert "def test(): pass" in src_summary
+
+
+
+================================================================================
+File: tests/test_tree_generator.py
+================================================================================
+from loguru import logger
+from pathlib import Path
+import pytest
+from readme_generator.generators.tree_generator import (
+    should_include_path,
+    node_to_tree,
+    generate_tree
+)
+
+@pytest.fixture
+def mock_repo_with_files(mock_repo):
+    """Create a mock repository with various file types"""
+    # Add workflow files
+    workflow_dir = mock_repo / ".github" / "workflows"
+    workflow_dir.mkdir(parents=True)
+    (workflow_dir / "test.yml").write_text("name: Test")
+    (workflow_dir / "build.yml").write_text("name: Build")
+    
+    # Add various hidden files
+    (mock_repo / ".env").write_text("SECRET=123")
+    (mock_repo / ".github" / "README.md").write_text("# GitHub Config")
+    
+    # Add some regular files and directories
+    docs_dir = mock_repo / "docs" / "readme" / "sections"
+    docs_dir.mkdir(parents=True, exist_ok=True)  # Added exist_ok=True
+    (docs_dir / "introduction.md").write_text("# Intro")
+    
+    # Add some files that should typically be ignored
+    cache_dir = mock_repo / "__pycache__"
+    cache_dir.mkdir(exist_ok=True)  # Added exist_ok=True
+    (cache_dir / "module.pyc").write_text("cache")
+    
+    return mock_repo
+
+def test_ignore_patterns():
+    """Test that ignore patterns work correctly"""
+    config = {
+        "tool": {
+            "readme": {
+                "tree": {
+                    "ignore_patterns": [".git", "__pycache__", "*.pyc"]
+                }
+            }
+        }
+    }
+    
+    # Should exclude based on exact pattern matches
+    assert should_include_path(Path(".git/config"), config) is False
+    assert should_include_path(Path("foo/__pycache__/bar.pyc"), config) is False
+    assert should_include_path(Path("test.pyc"), config) is False
+    
+    # Should include non-matching paths
+    assert should_include_path(Path(".github/workflows/test.yml"), config) is True  # .github != .git
+    assert should_include_path(Path(".env"), config) is True
+    assert should_include_path(Path("docs/readme/file.md"), config) is True
+    assert should_include_path(Path(".vscode/settings.json"), config) is True
+    assert should_include_path(Path("my_cache/file.txt"), config) is True  # Only exact __pycache__ matches
+
+def test_full_tree_generation(mock_repo_with_files, monkeypatch):
+    """Test complete tree generation with various file types"""
+    monkeypatch.chdir(mock_repo_with_files)
+    
+    # Create config that only ignores specific patterns
+    (mock_repo_with_files / "pyproject.toml").write_text("""
+[tool.readme.tree]
+ignore_patterns = ["__pycache__", "*.pyc", ".git"]
+    """)
+    
+    tree = generate_tree(".")
+    print(f"Generated tree:\n{tree}")  # Debug output
+    
+    # Should include .github and workflows
+    assert ".github" in tree
+    assert "workflows" in tree
+    assert "test.yml" in tree
+    assert "build.yml" in tree
+    
+    # Should include other hidden files not explicitly ignored
+    assert ".env" in tree
+    
+    # Should include regular files and directories
+    assert "docs" in tree
+    assert "readme" in tree
+    assert "sections" in tree
+    
+    # Should exclude ignored patterns
+    assert "__pycache__" not in tree
+    assert "*.pyc" not in tree
+
+def test_empty_directory_handling(mock_repo):
+    """Test handling of empty directories"""
+    # Create some empty directories
+    (mock_repo / "docs" / "empty").mkdir(parents=True, exist_ok=True)
+    (mock_repo / "src" / "empty").mkdir(parents=True, exist_ok=True)
+    (mock_repo / "temp" / "empty").mkdir(parents=True, exist_ok=True)
+    
+    config = {
+        "tool": {
+            "readme": {
+                "tree": {
+                    "ignore_patterns": []
+                }
+            }
+        }
+    }
+    
+    # Empty directories should be excluded unless they're essential
+    assert node_to_tree(mock_repo / "temp" / "empty", config) is None
+    
+    # Essential directories should be kept even if empty
+    assert node_to_tree(mock_repo / "docs", config) is not None
+    assert node_to_tree(mock_repo / "src", config) is not None
+
+def test_debug_path_processing(mock_repo_with_files):
+    """Debug test to print path processing details"""
+    config = {
+        "tool": {
+            "readme": {
+                "tree": {
+                    "ignore_patterns": ["__pycache__", "*.pyc"]
+                }
+            }
+        }
+    }
+    
+    def debug_walk(path: Path, indent=""):
+        logger.debug(f"{indent}Processing: {path}")
+        logger.debug(f"{indent}Should include: {should_include_path(path, config)}")
+        
+        if path.is_dir():
+            for child in sorted(path.iterdir()):
+                debug_walk(child, indent + "  ")
+    
+    logger.debug("Starting debug walk of repository")
+    debug_walk(mock_repo_with_files)
+
+

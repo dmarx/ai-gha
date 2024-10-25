@@ -1,0 +1,263 @@
+================================================================================
+File: src/readme_generator/generators/README.md
+================================================================================
+# Generators
+
+Component generators for various parts of the project.
+
+## Conventions
+
+- Each generator should be in its own file
+- Keep files focused on a single generation task
+- Follow naming pattern: `*_generator.py`
+- Expose public functions through `__init__.py`
+- All git operations should use `utils.commit_and_push`
+- Each generator should be independently usable
+
+## Key Components
+
+- `readme_generator.py`: Main README generation
+- `structure_generator.py`: Project structure documentation
+- `tree_generator.py`: Directory tree generation utilities
+
+## Adding New Generators
+
+1. Create a new `*_generator.py` file
+2. Implement the generator function
+3. Export it in `__init__.py`
+4. Update CLI if needed
+
+
+
+================================================================================
+File: src/readme_generator/generators/__init__.py
+================================================================================
+from .readme_generator import generate_readme
+from .structure_generator import update_structure
+from .tree_generator import generate_tree
+
+__all__ = ['generate_readme', 'update_structure', 'generate_tree']
+
+
+
+================================================================================
+File: src/readme_generator/generators/readme_generator.py
+================================================================================
+from pathlib import Path
+from typing import List
+from loguru import logger
+from jinja2 import Environment, FileSystemLoader
+from ..utils import load_config, get_project_root, commit_and_push
+
+def get_section_templates(template_dir: Path) -> List[str]:
+    """Get all section templates in proper order.
+    
+    Args:
+        template_dir: Path to template directory containing sections/
+        
+    Returns:
+        List of template names in desired order
+    """
+    # Define section order
+    section_order = {
+        "introduction.md.j2": 0,
+        "prerequisites.md.j2": 1,
+        "usage.md.j2": 2,
+        "development.md.j2": 3,
+        "summaries.md.j2": 4,
+        "site.md.j2": 5,
+        "structure.md.j2": 6,
+        "todo.md.j2": 999  # Always last if present
+    }
+    
+    sections_dir = template_dir / "sections"
+    templates = []
+    
+    # Collect all template files
+    for file in sections_dir.glob("*.md.j2"):
+        # Skip todo if it doesn't exist (it's optional)
+        if file.name == "todo.md.j2" and not file.exists():
+            continue
+        templates.append(file.name)
+    
+    # Sort by explicit order, then alphabetically for any new sections
+    return sorted(
+        templates,
+        key=lambda x: section_order.get(x, 500)
+    )
+
+def generate_readme() -> None:
+    """Generate README from templates and commit changes"""
+    project_root = get_project_root()
+    logger.debug(f"Project root identified as: {project_root}")
+    
+    logger.info("Loading configurations")
+    project_config = load_config("pyproject.toml")
+    
+    logger.info("Setting up Jinja2 environment")
+    template_dir = project_root / 'docs/readme'
+    logger.debug(f"Template directory: {template_dir}")
+    
+    env = Environment(
+        loader=FileSystemLoader(template_dir),
+        trim_blocks=True,
+        lstrip_blocks=True
+    )
+    
+    # Add template utility functions
+    env.globals['get_section_templates'] = lambda: get_section_templates(template_dir)
+    
+    template = env.get_template('base.md.j2')
+    
+    variables = {
+        'project': project_config['project'],
+        'readme': project_config['tool']['readme'],
+    }
+    
+    logger.info("Rendering README template")
+    output = template.render(**variables)
+    
+    readme_path = project_root / 'README.md'
+    logger.debug(f"Writing README to: {readme_path}")
+    readme_path.write_text(output)
+    
+    logger.info("Committing changes")
+    commit_and_push('README.md')
+
+
+
+================================================================================
+File: src/readme_generator/generators/structure_generator.py
+================================================================================
+from pathlib import Path
+from loguru import logger
+from ..utils import get_project_root, commit_and_push
+from .tree_generator import generate_tree
+
+def update_structure() -> None:
+    """Update the structure template and commit changes"""
+    project_root = get_project_root()
+    template_path = "docs/readme/sections/structure.md.j2"
+    full_template_path = project_root / template_path
+    
+    tree = generate_tree(str(project_root))
+    template_content = f"""## Project Structure
+
+The repository is organized as follows:
+
+```
+{tree}
+```
+
+### Key Components
+
+- `.github/workflows/`: GitHub Actions workflow definitions
+  - `build-readme.yml`: Automatically rebuilds README when content changes
+  - `update-structure.yml`: Updates project structure documentation
+
+- `docs/readme/`: README template files
+  - `base.md.j2`: Main template file
+  - `sections/`: Individual section templates
+
+- `src/readme_generator/`: Core Python package
+  - `generators/`: Generation components
+    - `tree_generator.py`: Tree generation utilities
+    - `readme_generator.py`: README generation logic
+    - `structure_generator.py`: Structure documentation
+  - `utils.py`: Shared utility functions
+  - `__main__.py`: CLI entry point
+
+- `pyproject.toml`: Project configuration and dependencies
+"""
+    
+    full_template_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(full_template_path, 'w') as f:
+        f.write(template_content)
+    
+    commit_and_push(template_path)
+
+
+
+================================================================================
+File: src/readme_generator/generators/tree_generator.py
+================================================================================
+from pathlib import Path
+from typing import Optional, Tuple
+from loguru import logger
+from tree_format import format_tree
+from ..utils import load_config
+import fnmatch
+
+def should_include_path(path: Path, config: dict) -> bool:
+    """
+    Determine if a path should be included in the tree.
+    Only excludes paths that exactly match ignore patterns.
+    """
+    path_str = str(path)
+    logger.debug(f"Checking path: {path_str}")
+    
+    # Check against ignore patterns
+    ignore_patterns = set(config["tool"]["readme"]["tree"]["ignore_patterns"])
+    
+    # Split path into parts and check each part against patterns
+    path_parts = path_str.split('/')
+    for pattern in ignore_patterns:
+        for part in path_parts:
+            if fnmatch.fnmatch(part, pattern):
+                logger.debug(f"Path {path_str} matched ignore pattern {pattern}")
+                return False
+    
+    logger.debug(f"Path {path_str} included")
+    return True
+
+def node_to_tree(path: Path, config: dict) -> Optional[Tuple[str, list]]:
+    """Convert a path to a tree node format"""
+    logger.debug(f"Processing node: {path}")
+    
+    if not should_include_path(path, config):
+        logger.debug(f"Excluding node: {path}")
+        return None
+    
+    if path.is_file():
+        logger.debug(f"Including file: {path}")
+        return path.name, []
+    
+    children = []
+    logger.debug(f"Processing children of: {path}")
+    for child in sorted(path.iterdir()):
+        node = node_to_tree(child, config)
+        if node is not None:
+            children.append(node)
+    
+    # Keep directories that have children or are essential
+    if not children and path.name not in {'docs', 'src'}:
+        logger.debug(f"Excluding empty directory: {path}")
+        return None
+    
+    logger.debug(f"Including directory: {path} with {len(children)} children")
+    return path.name, children
+
+def generate_tree(root_dir: str = ".") -> str:
+    """Generate a pretty directory tree"""
+    logger.info(f"Generating tree from {root_dir}")
+    
+    # Load config
+    project_config = load_config("pyproject.toml")
+    logger.debug(f"Loaded config: {project_config}")
+    
+    root_path = Path(root_dir)
+    logger.debug(f"Root path: {root_path.absolute()}")
+    
+    tree_root = node_to_tree(root_path, project_config)
+    
+    if tree_root is None:
+        logger.warning("No tree generated - root excluded")
+        return ""
+    
+    return format_tree(
+        tree_root,
+        format_node=lambda x: x[0],
+        get_children=lambda x: x[1]
+    )
+
+

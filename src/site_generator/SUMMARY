@@ -1,0 +1,166 @@
+================================================================================
+File: src/site_generator/README.md
+================================================================================
+# Site Generator Package
+
+Simple static site generator for demo purposes. Currently focused on serving the project's README as a GitHub Pages site.
+
+## Components
+
+### Core Modules
+- `generator.py`: Core site generation logic
+- `__main__.py`: CLI entrypoint
+
+## Features
+- Markdown to HTML conversion
+- Template-based page generation
+- GitHub-style rendering
+- Dark/light mode support
+- Mobile-responsive design
+
+## Usage
+
+```bash
+# Generate site with default settings
+python -m site_generator build
+
+# Specify custom output directory
+python -m site_generator build --output_dir="custom_dir"
+```
+
+## Templates
+Templates are stored in `docs/site/`:
+- `template.html`: Base HTML template
+- Additional assets (if added)
+
+## Testing
+
+Package-specific tests are in `tests/`:
+- `test_site_generator.py`
+
+Run tests with:
+```bash
+pytest tests/
+```
+
+## Customization
+The site can be customized by:
+- Modifying the HTML template
+- Adding custom CSS/JS
+- Extending the generator for additional pages
+
+
+
+================================================================================
+File: src/site_generator/__init__.py
+================================================================================
+
+
+
+
+================================================================================
+File: src/site_generator/__main__.py
+================================================================================
+"""CLI entry point for site generator."""
+import fire
+from loguru import logger
+
+from .generator import build_site
+
+class SiteGenerator:
+    """CLI for static site generation."""
+    
+    def build(self, output_dir: str = "_site") -> None:
+        """
+        Build the static site.
+        
+        Args:
+            output_dir: Output directory for the site. Defaults to '_site'.
+        """
+        logger.info("Building static site")
+        build_site(output_dir)
+
+def main() -> None:
+    """CLI entry point."""
+    fire.Fire(SiteGenerator)
+
+if __name__ == "__main__":
+    main()
+
+
+
+================================================================================
+File: src/site_generator/generator.py
+================================================================================
+"""Core site generation functionality."""
+from pathlib import Path
+from typing import Optional
+
+from loguru import logger
+import markdown2
+
+def get_project_root() -> Path:
+    """Get the project root directory."""
+    return Path(__file__).parent.parent.parent
+
+def build_site(output_dir: Optional[str] = None) -> None:
+    """
+    Build a static site from README content.
+    
+    Args:
+        output_dir: Optional directory for site output. Defaults to '_site'.
+    """
+    logger.info("Starting site generation")
+    
+    root = get_project_root()
+    output_path = Path(output_dir or "_site")
+    template_path = root / "docs" / "site" / "template.html"
+    readme_path = root / "README.md"
+    
+    logger.debug(f"Using output directory: {output_path}")
+    logger.debug(f"Using template: {template_path}")
+    logger.debug(f"Using README: {readme_path}")
+    
+    # Validate paths
+    if not template_path.exists():
+        logger.error(f"Template not found: {template_path}")
+        raise FileNotFoundError(f"Template not found: {template_path}")
+        
+    if not readme_path.exists():
+        logger.error(f"README not found: {readme_path}")
+        raise FileNotFoundError(f"README not found: {readme_path}")
+    
+    # Create output directory
+    output_path.mkdir(parents=True, exist_ok=True)
+    logger.debug("Created output directory")
+    
+    # Read template
+    logger.debug("Loading template")
+    with template_path.open() as f:
+        template = f.read()
+    
+    # Convert README
+    logger.info("Converting README to HTML")
+    with readme_path.open() as f:
+        md_content = f.read()
+        html_content = markdown2.markdown(
+            md_content,
+            extras=['fenced-code-blocks', 'tables', 'header-ids']
+        )
+    
+    # Generate final HTML
+    logger.debug("Generating final HTML")
+    final_html = template.replace('{{content}}', html_content)
+    
+    # Write output
+    output_file = output_path / "index.html"
+    logger.info(f"Writing site to: {output_file}")
+    with output_file.open('w') as f:
+        f.write(final_html)
+    
+    logger.success("Site generation complete")
+
+if __name__ == "__main__":
+    build_site()
+
+
