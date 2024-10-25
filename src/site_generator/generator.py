@@ -1,17 +1,15 @@
-"""Core site generation functionality."""
+"""Site generation module for GitHub Pages deployment."""
 from pathlib import Path
 from typing import Optional
 
 from loguru import logger
 import markdown2
 
-def get_project_root() -> Path:
-    """Get the project root directory."""
-    return Path(__file__).parent.parent.parent
+from ..utils import get_project_root
 
 def build_site(output_dir: Optional[str] = None) -> None:
     """
-    Build a static site from README content.
+    Build the GitHub Pages site from README content.
     
     Args:
         output_dir: Optional directory for site output. Defaults to '_site'.
