@@ -1,15 +1,17 @@
-# {{ project.name }}
+# {{project_name}}
 
-{{ project.description }}
+{{project_description}}
 
-{% include 'sections/introduction.md.j2' %}
+{% include "sections/introduction.md.j2" %}
 
-{% include 'sections/prerequisites.md.j2' %}
+{% include "sections/prerequisites.md.j2" %}
 
-{% include 'sections/usage.md.j2' %}
+{% include "sections/usage.md.j2" %}
 
-{% include 'sections/development.md.j2' %}
+{% include "sections/development.md.j2" %}
 
-{% include 'sections/structure.md.j2' %}
+{% include "sections/site.md.j2" %}
 
-{% include 'sections/todo.md.j2' %}
+{% include "sections/structure.md.j2" %}
+
+{% include "sections/todo.md.j2" %}
