@@ -33,10 +33,35 @@ class SummaryGenerator:
         if any(part in excluded_files for part in file_path.parts):
             return False
             
+        # Skip .github/workflows directory
+        if '.github/workflows' in str(file_path):
+            return False
+            
         # Only include text files
         text_extensions = {'.py', '.md', '.txt', '.yml', '.yaml', '.toml', 
                          '.json', '.html', '.css', '.js', '.j2'}
         return file_path.suffix in text_extensions
+    
+    def should_include_directory(self, directory: Path) -> bool:
+        """Determine if a directory should have a summary generated.
+        
+        Args:
+            directory: Directory to check
+            
+        Returns:
+            True if directory should have a summary
+        """
+        # Skip .github/workflows directory
+        if '.github/workflows' in str(directory):
+            return False
+            
+        # Skip other excluded directories
+        excluded_dirs = {
+            '.git', '__pycache__', '.pytest_cache',
+            '.venv', '.idea', '.vscode'
+        }
+        
+        return not any(part in excluded_dirs for part in directory.parts)
     
     def _collect_directories(self) -> Set[Path]:
         """Collect all directories containing files to summarize.
@@ -46,7 +71,9 @@ class SummaryGenerator:
         """
         directories = set()
         for file_path in self.root_dir.rglob('*'):
-            if file_path.is_file() and self.should_include_file(file_path):
+            if (file_path.is_file() and 
+                self.should_include_file(file_path) and
+                self.should_include_directory(file_path.parent)):
                 directories.add(file_path.parent)
         return directories
         
@@ -102,6 +129,9 @@ class SummaryGenerator:
         
         # Generate summaries
         for directory in sorted(directories):
+            if not self.should_include_directory(directory):
+                continue
+                
             summary_content = self.generate_directory_summary(directory)
             summary_path = directory / 'SUMMARY'
             
