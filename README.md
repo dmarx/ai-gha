@@ -1,6 +1,6 @@
-# readme-generator
+# 
 
-Template repository for GitHub Action-based agents with dynamic documentation
+
 
 ## Introduction
 
@@ -206,6 +206,73 @@ When developing this project (or using it as a template), keep in mind these gui
    - Consider splitting when files require partial updates
    - Write tests alongside new features
    - Run tests locally before pushing
+## GitHub Pages
+
+### Site Generation
+
+The project includes automated GitHub Pages deployment through GitHub Actions. The site is automatically rebuilt whenever the README is updated.
+
+### Setup
+
+1. **Enable GitHub Pages**
+   - Go to Repository Settings → Pages
+   - Set Source to "GitHub Actions"
+
+2. **Install Dependencies**
+   ```bash
+   # Install with docs dependencies
+   pip install -e ".[docs]"
+   ```
+
+3. **Local Development**
+   ```bash
+   # Generate site locally
+   python -m readme_generator site
+   
+   # Specify custom output directory
+   python -m readme_generator site --output_dir="custom_dir"
+   ```
+
+### Features
+
+- Automatic dark/light mode support
+- Mobile-responsive design
+- GitHub-style markdown rendering
+- Code syntax highlighting
+- Automatic deployment
+- Table of contents with anchor links
+
+### GitHub Actions Integration
+
+The site automatically rebuilds and deploys when:
+- The README is updated through the `build-readme` workflow
+- The workflow is manually triggered
+
+### Command Line Usage
+
+```bash
+# Basic site generation
+python -m readme_generator site
+
+# Custom output directory
+python -m readme_generator site --output_dir="custom_dir"
+```
+
+### Development
+
+The site generator follows the project's modular design principles:
+- Located in `generators/site_generator.py`
+- Uses `loguru` for logging
+- Implements comprehensive error handling
+- Includes pytest-based test suite
+
+### Customization
+
+The site template is located in `docs/site/template.html` and can be customized with:
+- Custom CSS styles
+- Additional JavaScript
+- Modified layout and structure
+- Custom header/footer content
 ## Project Structure
 
 The repository is organized as follows:
@@ -231,6 +298,7 @@ ai-gha
 │   │       ├── development.md.j2
 │   │       ├── introduction.md.j2
 │   │       ├── prerequisites.md.j2
+│   │       ├── site.md.j2
 │   │       ├── structure.md.j2
 │   │       ├── todo.md.j2
 │   │       └── usage.md.j2
