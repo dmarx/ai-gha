@@ -170,3 +170,47 @@ class SignatureExtractor:
                 lines.append("")  # Add spacing between methods
         
         return lines
+
+def generate_python_summary(root_dir: str | Path) -> str:
+    """Generate enhanced Python project structure summary.
+    
+    Args:
+        root_dir: Root directory of the project
+        
+    Returns:
+        Formatted markdown string of Python signatures
+    """
+    root_dir = Path(root_dir)
+    extractor = SignatureExtractor()
+    content = ["# Python Project Structure\n"]
+    
+    for file in sorted(root_dir.rglob("*.py")):
+        if any(part.startswith('.') for part in file.parts):
+            continue
+        if '__pycache__' in file.parts:
+            continue
+            
+        try:
+            # Get relative path
+            rel_path = file.relative_to(root_dir)
+            
+            # Read and extract signatures
+            source = file.read_text()
+            signatures = extractor.extract_signatures(source)
+            
+            # Only include files that have actual content
+            if signatures:
+                content.append(f"## {rel_path}")
+                content.append("```python")
+                
+                # Format each signature
+                for sig in signatures:
+                    content.extend(extractor.format_signature(sig))
+                    content.append("")  # Add spacing between top-level items
+                
+                content.append("```\n")
+            
+        except Exception as e:
+            logger.error(f"Error processing {file}: {e}")
+    
+    return "\n".join(content)
