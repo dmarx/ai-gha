@@ -42,10 +42,11 @@ jobs:
         run: |
           python -m pip install -e ".[all]"
       
-      # - name: Setup Pages
-      #   uses: actions/configure-pages@v4
-      #   with:
-      #     enablement: true
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+        with:
+          enablement: true
+          token: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Build site
         run: python -m site_generator build
