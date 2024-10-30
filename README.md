@@ -303,6 +303,18 @@ The `SUMMARIES/` directory helps with:
      - Under "Build and deployment":
        - Set Source to "GitHub Actions"
 
+3. **Branch Setup**
+   - Create a `gh-pages` branch:
+     ```bash
+     git checkout --orphan gh-pages
+     git reset --hard
+     git commit --allow-empty -m "Initial gh-pages commit"
+     git push origin gh-pages
+     git checkout main  # Return to main branch
+     ```
+   - This branch is required for GitHub Pages deployment
+   - The deployment workflow will manage this branch automatically once created
+
 ### Installation
 
 ```bash
@@ -367,6 +379,34 @@ The site generation can be tested locally even if GitHub Pages deployment isn't 
 # Run the test suite
 pytest tests/test_site_generator.py
 ```
+
+### Troubleshooting
+
+#### Common Issues
+
+1. **"Resource not accessible by integration" Error**
+   - **Problem**: Deployment fails with "Resource not accessible by integration" or "Create Pages site failed"
+   - **Solution**: Ensure you've:
+     1. Created the `gh-pages` branch (see Branch Setup section above)
+     2. Enabled GitHub Pages in repository settings
+     3. Set source to "GitHub Actions" in Pages settings
+     4. Enabled proper workflow permissions
+
+2. **Deployment Not Starting**
+   - **Problem**: Workflow runs but site doesn't deploy
+   - **Solution**: Verify that:
+     1. Repository is public or on Enterprise plan
+     2. `gh-pages` branch exists
+     3. Workflow has correct permissions in repository settings
+
+3. **Empty Site Deployment**
+   - **Problem**: Site deploys but shows no content
+   - **Solution**: Check that:
+     1. Build step is generating content in `_site` directory
+     2. `upload-pages-artifact` step has correct path
+     3. Site generator is installed with all dependencies
+
+For any persistent issues, check the workflow run logs for specific error messages and ensure all setup steps have been completed in order.
 ## Project Structure
 
 The repository is organized as follows:
