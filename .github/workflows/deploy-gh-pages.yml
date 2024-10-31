@@ -5,7 +5,9 @@ on:
     workflows: ["Build README"]
     types:
       - completed
-
+  paths:    
+    - '.github/workflows/deploy-gh-pages.yml'
+    
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
